@@ -88,14 +88,18 @@ public class MainWindow extends BorderPane {
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
         this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane);
+        World2.initWorld2();
+
+//        Image initRender = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+//                80));
+//        mainView.setImage(initRender);
 
 
 
 
         this.renderButton.setOnAction(event -> {
             Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                    80,
-                    trackballPane.getLastQuat()));
+                    80));
             mainView.setImage(renderedImage);
         });
 
@@ -116,11 +120,11 @@ public class MainWindow extends BorderPane {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number >
                                         observable, Number oldValue, Number newValue) {
-                World.setViewPlaneAngle(-newValue.doubleValue());
+                World2.initWorld2();
+                World2.moveViewPlaneByAngleDegrees(-newValue.doubleValue());
 
                 Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                        80,
-                        trackballPane.getLastQuat()));
+                        80));
                 mainView.setImage(renderedImage);
             }
         });

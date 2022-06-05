@@ -6,39 +6,40 @@ public class RayCasterTask implements Runnable {
 
     protected final Color[][] image;
     protected final AABB aabb;
-    protected final Vector3D step;
+    protected final Vector3D stepX;
     protected final Vector3D aabbOffset;
     protected final CountDownLatch latch;
     protected final short vol[][][];
     protected final int startIndex;
     protected final int endIndex;
 
-    protected Vector3D startStep;
-    protected Vector3D curStep;
+    protected Vector3D startStepX;
+    protected Vector3D curStepX;
+    protected Vector3D curStepY;
 
-    public RayCasterTask(Color[][] image, AABB aabb, Vector3D step, Vector3D aabbOffset, CountDownLatch latch,
+    public RayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset, CountDownLatch latch,
                          short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;
-        this.step = step;
-        this.curStep = new Vector3D(step);
+        this.stepX = World2.getStepX();
+        this.curStepX = new Vector3D(stepX);
         this.aabbOffset = aabbOffset;
         this.latch = latch;
         this.vol = vol;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
-        this.setStartStep();
+        this.setStartStepX();
     }
 
     @Override
     public void run() {
         for (int y = 0; y < World.VIEW_PLANE_HEIGHT; y++) {
-            Vector3D curStep = startStep;
+            Vector3D curStep = startStepX;
             for (int x = startIndex; x < endIndex; x++) {
                 Vector3D rayOrigin = new Vector3D(World.getViewPlaneCorner0().add(curStep));
                 //adjust for the current pixel
                 rayOrigin.setY(y);
-                curStep = curStep.add(step);
+                curStep = curStep.add(stepX);
                 //
 
                 //rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, World.DATASET_CENTRE);
@@ -64,7 +65,7 @@ public class RayCasterTask implements Runnable {
         latch.countDown();
     }
 
-    private void setStartStep() {
-        this.startStep = this.curStep.add(this.step.mult(startIndex));
+    private void setStartStepX() {
+        this.startStepX = this.curStepX.add(this.stepX.mult(startIndex));
     }
 }

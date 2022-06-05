@@ -77,6 +77,7 @@ public class Quaternion {
         double otherY = otherVector.getY();
         double otherZ = otherVector.getZ();
 
+        //TODO is this correct?
         double w = thisW * otherW - thisX * otherX - thisY * otherY - thisZ * otherZ;
         double x = thisW * otherX + thisX * otherW + thisY * otherZ - thisZ * otherY;
         double y = thisW * otherY - thisX * otherZ + thisY * otherW + thisZ * otherX;
@@ -88,6 +89,30 @@ public class Quaternion {
 //        System.out.println("MULT = " + q);
 
         return q;
+    }
+
+    /**
+     * Rotates the toRotate Vector3D around the give localCentre as the origin
+     * around this quaternion
+     * @param toRotate the vector to rotate
+     * @param localCentre the centre of rotation
+     * @param scale the scalar by which to increse the angle of rotation
+     * @return the rotated vector
+     */
+    public Vector3D rotateWithScale(Vector3D toRotate, Vector3D localCentre, double scale) {
+        //.sub(localCentre) called to translate from the local centre to the origin
+        toRotate = toRotate.sub(localCentre);
+        Vector3D thisVectorPartScaled = this.getVector().mult(scale);
+        double wScaled = this.getW() * scale;
+        Vector3D crossProd = thisVectorPartScaled.crossProd(toRotate);
+        //.add(localCentre) called to detranslate
+        return toRotate
+                .add(crossProd
+                        .mult(2 * wScaled))
+                .add(thisVectorPartScaled
+                        .crossProd(crossProd)
+                        .mult(2))
+                .add(localCentre);
     }
 
     /**

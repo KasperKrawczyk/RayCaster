@@ -14,7 +14,7 @@ public class TrackballPane extends StackPane {
     private final ImageView mainView;
     private ImageView trackballView = new ImageView(trackballImage);
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.Y);
-    private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.IDENTITY);
+    private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
     public TrackballPane(ImageView view) {
@@ -45,16 +45,20 @@ public class TrackballPane extends StackPane {
         });
 
         this.trackballView.setOnMouseReleased(event -> {
+
+
             if (this.start == null) {
                 return;
             }
             this.lastQuat = curQuat.mult(this.lastQuat);
-            //System.out.println("lastQuat = " + this.lastQuat);
-            this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.IDENTITY);
+            System.out.println("lastQuat = " + this.lastQuat);
+            this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
             this.start = null;
-            Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                    80,
-                    this.lastQuat));
+            World2.moveViewPortByRotator(this.lastQuat);
+            Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
+                    DataSet.getBytes(),
+                    80)
+            );
             this.mainView.setImage(renderedImage);
 
         });

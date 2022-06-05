@@ -4,29 +4,40 @@ import java.util.concurrent.CountDownLatch;
 
 public class RotatedRayCasterTask extends RayCasterTask {
 
-    private final Quaternion rotator;
+    protected Vector3D stepY;
 
-    public RotatedRayCasterTask(Color[][] image, AABB aabb, Vector3D step, Vector3D aabbOffset, Quaternion rotator,
+
+    public RotatedRayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset,
                                 CountDownLatch latch, short[][][] vol, int startIndex, int endIndex) {
-        super(image, aabb, step, aabbOffset, latch, vol, startIndex, endIndex);
-        this.rotator = rotator;
+        super(image, aabb, aabbOffset, latch, vol, startIndex, endIndex);
+
+        this.stepY = World2.getStepY();
+        this.curStepY = World2.getViewPortCorner0();
+//        System.out.println("World2.getStepY() = " + World2.getStepY());
+//        System.out.println("World2.getStepX() = " + World2.getStepX());
     }
 
     @Override
     public void run() {
+        Vector3D rayOrigin;
         for (int y = 0; y < World.VIEW_PLANE_HEIGHT; y++) {
-            Vector3D curStep = startStep;
+
+            curStepX = startStepX;
             for (int x = startIndex; x < endIndex; x++) {
-                Vector3D rayOrigin = new Vector3D(World.getViewPlaneCorner0().add(curStep));
+                rayOrigin = new Vector3D(World2.getViewPortCorner0().add(curStepX));
                 //adjust for the current pixel
-                rayOrigin.setY(y);
-                curStep = curStep.add(step);
+                rayOrigin.setY(curStepY.getY());
+//                System.out.println("curStepY = " + curStepY);
+                curStepX = curStepX.add(stepX);
                 //
 
 //                Vector3D rotatedNormal = rotator.rotate(World.getViewPlaneNormal(), World.DATASET_CENTRE);
 //                Ray ray = new Ray(rayOrigin, rotatedNormal); //TODO for rotating the rays
 
-                Ray ray = new Ray(rayOrigin, World.getViewPlaneNormal());
+                Ray ray = new Ray(rayOrigin, World2.getViewPortNormal());
+//                System.out.println("ray = " + ray);
+
+//                System.out.println("VPN = " + World2.getViewPortNormal());
                 Vector3D[] intersectionPoints = VolumeRenderer.translateToVolumeCoordinates(
                         aabb.getIntersections(ray, 0, Float.MAX_VALUE),
                         aabbOffset);
@@ -41,8 +52,9 @@ public class RotatedRayCasterTask extends RayCasterTask {
                     color = Color.BLACK;
                 }
 
-                image[y][x] = color;
+                image[World.VIEW_PLANE_HEIGHT - y - 1][x] = color;
             }
+            curStepY = curStepY.add(stepY);
         }
         latch.countDown();
     }

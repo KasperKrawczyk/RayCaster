@@ -209,6 +209,10 @@ public class Gradients {
         int depth = vol.length;
         int height = vol[0].length;
         int width = vol[0][0].length;
+        x = Math.min(Math.max(0, x), width - 1);
+        y = Math.min(Math.max(0, y), height - 1);
+        z = Math.min(Math.max(0, z), depth - 1);
+
 
         float x0 = (float) Math.max(Math.min(Math.floor(x), width - 1), 0);
         float y0 = (float) Math.max(Math.min(Math.floor(y), height - 1), 0);

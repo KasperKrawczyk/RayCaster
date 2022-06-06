@@ -42,12 +42,12 @@ public class Quaternion {
         return q;
     }
 
-    public static Quaternion newRotator(double angle, Axis axis) {
-        return new Quaternion(angle, axis.getVector());
+    public static Quaternion newRotator(double angle, Vector3D vector) {
+        return new Quaternion(angle, vector);
     }
 
     public Quaternion concatenate(double angle, Axis axis) {
-        return this.mult(new Quaternion(angle, axis.getVector()));
+        return this.mult(Quaternion.makeExactQuaternionRadians(angle, axis.getVector()));
     }
 
     @Override
@@ -140,7 +140,7 @@ public class Quaternion {
     }
 
     public Quaternion add(Quaternion other) {
-        return new Quaternion(this.w + other.getW(), this.getVector().add(other.getVector()));
+        return Quaternion.makeExactQuaternionRadians(this.w + other.getW(), this.getVector().add(other.getVector()));
     }
 
     public double magnitude() {
@@ -154,7 +154,7 @@ public class Quaternion {
         double magnitude = this.magnitude();
 //        System.out.println("magnitude = " + magnitude);
         Vector3D normVector = this.getVector().div(magnitude);
-        return new Quaternion(this.w / magnitude, normVector);
+        return Quaternion.makeExactQuaternionRadians(this.w / magnitude, normVector);
     }
 
     public Quaternion mult(double scalar) {

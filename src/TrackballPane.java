@@ -13,7 +13,7 @@ public class TrackballPane extends StackPane {
     private WritableImage trackballImage = new WritableImage(SIDE, SIDE);
     private final ImageView mainView;
     private ImageView trackballView = new ImageView(trackballImage);
-    private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.Y);
+    private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
@@ -39,7 +39,7 @@ public class TrackballPane extends StackPane {
             Vector3D startVector = getProjection(this.start.getX(), this.start.getY());
 //            System.out.println("startVector = " + startVector);
             Vector3D endVector = getProjection(event.getX(), event.getY());
-            System.out.println("endVector = " + endVector);
+//            System.out.println("endVector = " + endVector);
             this.curQuat = getQuatBetweenVectors(startVector, endVector);
 //            System.out.println("curQuat.getVector() = " + curQuat.getVector());
 //            System.out.println("curQuat.magnitude() = " + curQuat.magnitude());
@@ -57,10 +57,12 @@ public class TrackballPane extends StackPane {
 //            System.out.println("lastQuat.magnitude() = " + this.lastQuat.magnitude());
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
 //            System.out.println("NEW EXACT CURQUAT");
-//            System.out.println("curQuat = " + curQuat);
-//            System.out.println("curQuat.magnitude() = " + curQuat.magnitude());
+//            System.out.println("lastQuat = " + lastQuat);
+//            System.out.println("lastQuat.magnitude() = " + lastQuat.magnitude());
             this.start = null;
             World2.moveViewPortByRotator(this.lastQuat);
+
+
             Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
                     DataSet.getBytes(),
                     80)
@@ -119,13 +121,20 @@ public class TrackballPane extends StackPane {
      * @return a quaternion to rotate around the cross-product of the input vectors
      */
     private Quaternion getQuatBetweenVectors(Vector3D start, Vector3D end) {
-        start = start.normalize();
-        end = end.normalize();
-
-        return new Quaternion(
-                -(1 + start.dotProd(end)),
-                start.crossProd(end)
+        System.out.println("start = " + start);
+        System.out.println("end = " + end);
+        Vector3D startNorm = start.normalize();
+        Vector3D endNorm = end.normalize();
+        System.out.println("DEGREES BT start AND end = " + Math.toDegrees(Math.acos(startNorm.dotProd(endNorm))));
+        Quaternion q = Quaternion.makeExactQuaternionRadians(
+                1 + startNorm.dotProd(endNorm),
+                startNorm.crossProd(endNorm)
         );
+        System.out.println("q = " + q);
+        q= q.normalize();
+        System.out.println("q norm = " + q);
+
+        return q;
 
     }
 

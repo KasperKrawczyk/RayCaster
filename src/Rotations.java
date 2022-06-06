@@ -18,7 +18,7 @@ public class Rotations {
         System.out.println("rotated with q3 = " + q3.rotate(toRotate, World.ORIGIN));
         System.out.println("rotated with q1 = " + q1.rotate(toRotate, World.ORIGIN));
 
-        Vector3D rotated = Quaternion.newRotator(45, Axis.X).concatenate(90, Axis.Y).rotate(toRotate, World.ORIGIN);
+        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, World.ORIGIN);
         System.out.println("test = " + rotated);
         System.out.println(rotated.equals(rotatedNaive));
 

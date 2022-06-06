@@ -156,7 +156,7 @@ public class World2 {
 
     public static void moveViewPlaneByAngleDegrees(double degrees) {
         //first, the centre floor point of the view plane is calculated
-        viewPortCentre = Quaternion.newRotator(degrees, Axis.Y).rotate(viewPortCentre, circleCentre);
+        viewPortCentre = Quaternion.makeExactQuaternionDegrees(degrees, Axis.Y.getVector()).rotate(viewPortCentre, circleCentre);
 
         //then, the VP corners 0, 1, 2, and 3 can be derived therefrom
         viewPortNormal = DATASET_CENTRE.sub(viewPortCentre).normalize();

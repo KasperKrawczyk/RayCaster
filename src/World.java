@@ -88,7 +88,7 @@ public class World {
      */
     public static void moveViewPlaneByAngleDegrees(double degrees) {
         //first, the centre floor point of the view plane is calculated
-        viewPlaneCentreFloor = Quaternion.newRotator(degrees, Axis.Y).rotate(viewPlaneCentreFloor, circleCentre);
+        viewPlaneCentreFloor = Quaternion.newRotator(degrees, Axis.Y.getVector()).rotate(viewPlaneCentreFloor, circleCentre);
 
         System.out.println("circleCentre = " + circleCentre);
 

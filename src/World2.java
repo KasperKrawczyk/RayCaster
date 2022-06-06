@@ -144,13 +144,13 @@ public class World2 {
 
         updateEye();
 
-        System.out.println("----------WORLD UPDATE----------");
-        System.out.println("viewPortCentre = " + viewPortCentre);
-        System.out.println("viewPortNormal = " + viewPortNormal);
-        System.out.println("viewPortCorner0 = " + viewPortCorner0);
-        System.out.println("viewPortCorner1 = " + viewPortCorner1);
-        System.out.println("viewPortCorner2 = " + viewPortCorner2);
-        System.out.println("viewPortCorner3 = " + viewPortCorner3);
+//        System.out.println("----------WORLD UPDATE----------");
+//        System.out.println("viewPortCentre = " + viewPortCentre);
+//        System.out.println("viewPortNormal = " + viewPortNormal);
+//        System.out.println("viewPortCorner0 = " + viewPortCorner0);
+//        System.out.println("viewPortCorner1 = " + viewPortCorner1);
+//        System.out.println("viewPortCorner2 = " + viewPortCorner2);
+//        System.out.println("viewPortCorner3 = " + viewPortCorner3);
 
     }
 
@@ -165,13 +165,13 @@ public class World2 {
 
         updateEye();
 
-        System.out.println("----------WORLD UPDATE----------");
-        System.out.println("viewPortCentre = " + viewPortCentre);
-        System.out.println("viewPortNormal = " + viewPortNormal);
-        System.out.println("viewPortCorner0 = " + viewPortCorner0);
-        System.out.println("viewPortCorner1 = " + viewPortCorner1);
-        System.out.println("viewPortCorner2 = " + viewPortCorner2);
-        System.out.println("viewPortCorner3 = " + viewPortCorner3);
+//        System.out.println("----------WORLD UPDATE----------");
+//        System.out.println("viewPortCentre = " + viewPortCentre);
+//        System.out.println("viewPortNormal = " + viewPortNormal);
+//        System.out.println("viewPortCorner0 = " + viewPortCorner0);
+//        System.out.println("viewPortCorner1 = " + viewPortCorner1);
+//        System.out.println("viewPortCorner2 = " + viewPortCorner2);
+//        System.out.println("viewPortCorner3 = " + viewPortCorner3);
 
     }
 
@@ -207,9 +207,9 @@ public class World2 {
         //normal.x, normal.y, normal.z,
         // - normal.x*viewPortCentre.x - normal.y*viewPortCentre.y - normal.z*viewPortCentre.z
         Vector3D horizontal = Axis.Y.getVector().crossProd(normal).normalize(); //horizontal axis of the viewport
-        System.out.println("horizontal = " + horizontal);
+//        System.out.println("horizontal = " + horizontal);
         Vector3D vertical = normal.crossProd(horizontal).normalize(); //vertical axis of the viewport
-        System.out.println("vertical = " + vertical);
+//        System.out.println("vertical = " + vertical);
         //
         //0           1
         //

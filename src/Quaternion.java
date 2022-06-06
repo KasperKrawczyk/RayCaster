@@ -67,17 +67,19 @@ public class Quaternion {
         Vector3D thisVector = this.getVector();
         Vector3D otherVector = other.getVector();
 
+        // Components of this quaternion.
         double thisW = this.getW();
         double thisX = thisVector.getX();
         double thisY = thisVector.getY();
         double thisZ = thisVector.getZ();
 
+        // Components of the other quaternion.
         double otherW = other.getW();
         double otherX = otherVector.getX();
         double otherY = otherVector.getY();
         double otherZ = otherVector.getZ();
 
-        //TODO is this correct?
+        // Components of the product.
         double w = thisW * otherW - thisX * otherX - thisY * otherY - thisZ * otherZ;
         double x = thisW * otherX + thisX * otherW + thisY * otherZ - thisZ * otherY;
         double y = thisW * otherY - thisX * otherZ + thisY * otherW + thisZ * otherX;

@@ -23,9 +23,10 @@ public class TrackballPane extends StackPane {
         this.mainView = view;
         this.getChildren().add(trackballView);
         this.trackballView.setImage(trackballImage);
+
         this.trackballView.setOnMousePressed(event -> {
             this.start = new Point2D(event.getX(), event.getY());
-//            System.out.println("start = " + start);
+            System.out.println("start = " + start);
 
         });
 
@@ -38,9 +39,10 @@ public class TrackballPane extends StackPane {
             Vector3D startVector = getProjection(this.start.getX(), this.start.getY());
 //            System.out.println("startVector = " + startVector);
             Vector3D endVector = getProjection(event.getX(), event.getY());
-//            System.out.println("endVector = " + endVector);
+            System.out.println("endVector = " + endVector);
             this.curQuat = getQuatBetweenVectors(startVector, endVector);
 //            System.out.println("curQuat.getVector() = " + curQuat.getVector());
+//            System.out.println("curQuat.magnitude() = " + curQuat.magnitude());
 
         });
 
@@ -51,8 +53,12 @@ public class TrackballPane extends StackPane {
                 return;
             }
             this.lastQuat = curQuat.mult(this.lastQuat);
-            System.out.println("lastQuat = " + this.lastQuat);
+//            System.out.println("lastQuat = " + this.lastQuat);
+//            System.out.println("lastQuat.magnitude() = " + this.lastQuat.magnitude());
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
+//            System.out.println("NEW EXACT CURQUAT");
+//            System.out.println("curQuat = " + curQuat);
+//            System.out.println("curQuat.magnitude() = " + curQuat.magnitude());
             this.start = null;
             World2.moveViewPortByRotator(this.lastQuat);
             Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
@@ -72,14 +78,14 @@ public class TrackballPane extends StackPane {
     }
 
     private double sphereDepth(double x, double y) {
-        return Math.sqrt(Math.pow(RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
+        return Math.sqrt(Math.pow(RADIUS, 2) - Math.pow(x, 2) + Math.pow(y, 2));
     }
 
     private double[] getCanonical(double x, double y) {
         double[] canonCoords = new double[2]; //[x, y]
 
         canonCoords[0] = (2 * x - SIDE - 1) / (SIDE - 1);
-        canonCoords[1] = -((2 * y - SIDE - 1) / (SIDE - 1));
+        canonCoords[1] = ((2 * y - SIDE - 1) / (SIDE - 1));
 
         return canonCoords;
     }
@@ -96,7 +102,7 @@ public class TrackballPane extends StackPane {
             z = hyperbolicDepth(x, y);
         }
 //        System.out.println("depth z = " + z);
-        Vector3D v = new Vector3D(canonCoords[0], canonCoords[1], z);
+        Vector3D v = new Vector3D(canonCoords[0], -canonCoords[1], z);
 //        System.out.println("v = " + v);
 //        System.out.println(v.getX());
 //        System.out.println(v.getY());
@@ -116,15 +122,15 @@ public class TrackballPane extends StackPane {
         start = start.normalize();
         end = end.normalize();
 
-        return Quaternion.makeExactQuaternionRadians(
+        return new Quaternion(
                 -(1 + start.dotProd(end)),
                 start.crossProd(end)
-        ).normalize();
+        );
 
     }
 
     private boolean isInHemisphere(double x, double y) {
-        return (Math.pow(x, 2) + Math.pow(y, 2)) <= (Math.pow(RADIUS, 2) / 2);
+        return (Math.pow(x, 2) + Math.pow(y, 2)) <= (Math.pow(RADIUS, 2) / 2d);
     }
 
     private void paintImage() {

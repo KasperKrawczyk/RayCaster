@@ -170,5 +170,12 @@ public class Vector3D extends Point3D {
         return translatedRotated.add(this);
     }
 
+    public double getEuclideanDist(Vector3D other) {
+        double dx = getX() - other.getX();
+        double dy = getY() - other.getY();
+        double dz = getZ() - other.getZ();
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
 
 }

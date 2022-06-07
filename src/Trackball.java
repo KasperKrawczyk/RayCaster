@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import java.util.Arrays;
 
 public class Trackball {
+    public static final double MIN_DIST = 0.001;
     public static final float RADIUS = 1;
 
     private final ImageView mainView;
@@ -33,8 +34,18 @@ public class Trackball {
             Vector3D endVector = getProjection(event.getX(), event.getY());
 //            System.out.println("endVector = " + endVector);
             this.curQuat = getQuatBetweenVectors(startVector, endVector);
-//            System.out.println("curQuat.getVector() = " + curQuat.getVector());
-//            System.out.println("curQuat.magnitude() = " + curQuat.magnitude());
+
+            //if (isMinEuclideanDist(startVector, endVector, MIN_DIST)) {
+                this.lastQuat = curQuat.mult(this.lastQuat);
+                this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
+                this.start = new Point2D(event.getX(), event.getY());
+                World.moveViewPortByRotator(this.lastQuat);
+                Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
+                        DataSet.getBytes(),
+                        80)
+                );
+                this.mainView.setImage(renderedImage);
+            //}
 
         });
 
@@ -132,6 +143,12 @@ public class Trackball {
 
     private boolean isInHemisphere(double x, double y) {
         return (Math.pow(x, 2) + Math.pow(y, 2)) <= (Math.pow(RADIUS, 2) / 2d);
+    }
+
+    private boolean isMinEuclideanDist(Vector3D start, Vector3D cur, double minDist) {
+        double dist = start.getEuclideanDist(cur);
+        System.out.println("dist = " + dist);
+        return minDist <= start.getEuclideanDist(cur);
     }
 
 }

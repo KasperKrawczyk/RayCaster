@@ -102,7 +102,7 @@ public class VolumeRenderer {
             }
 
             Color shadedSample = Reflections.applyLambertianReflection(
-                    World2.getLight(),
+                    World.getLight(),
                     sample,
                     sample.getGradient(),
                     new Color(r, g, b, opacity)
@@ -140,8 +140,8 @@ public class VolumeRenderer {
         Vector3D aabbOffset = new Vector3D(0, 0, 0);
 
 
-        WritableImage renderedImage = new WritableImage(World2.VIEW_PLANE_WIDTH, World2.VIEW_PLANE_HEIGHT);
-        Color[][] colorMat = new Color[World2.VIEW_PLANE_HEIGHT][World2.VIEW_PLANE_WIDTH];
+        WritableImage renderedImage = new WritableImage(World.VIEW_PLANE_WIDTH, World.VIEW_PLANE_HEIGHT);
+        Color[][] colorMat = new Color[World.VIEW_PLANE_HEIGHT][World.VIEW_PLANE_WIDTH];
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         AABB aabb = new AABB(
                 new Vector3D(255, 112, 255).add(aabbOffset),
@@ -155,19 +155,19 @@ public class VolumeRenderer {
     }
 
 //    public static Image volumeRayCastParallelized(short[][][] vol, int numOfThreads) {
-//        World.initWorld();
+//        WorldOld.initWorld();
 //        Vector3D aabbOffset = new Vector3D(0, 0, 0);
 //
 //
-//        WritableImage renderedImage = new WritableImage(World.VIEW_PLANE_WIDTH, World.VIEW_PLANE_HEIGHT);
-//        Color[][] colorMat = new Color[World.VIEW_PLANE_HEIGHT][World.VIEW_PLANE_WIDTH];
+//        WritableImage renderedImage = new WritableImage(WorldOld.VIEW_PLANE_WIDTH, WorldOld.VIEW_PLANE_HEIGHT);
+//        Color[][] colorMat = new Color[WorldOld.VIEW_PLANE_HEIGHT][WorldOld.VIEW_PLANE_WIDTH];
 //        PixelWriter pixelWriter = renderedImage.getPixelWriter();
 //        AABB aabb = new AABB(
 //                new Vector3D(255, 112, 255).add(aabbOffset),
 //                new Vector3D(0, 0, 0).add(aabbOffset)
 //        );
 //
-//        World.moveViewPlaneByAngleDegrees(World.getViewPlaneAngle());
+//        WorldOld.moveViewPlaneByAngleDegrees(WorldOld.getViewPlaneAngle());
 //        runRayCasterTasks(numOfThreads, colorMat, aabb, aabbOffset, vol);
 //        matToImg(colorMat, pixelWriter);
 //
@@ -206,8 +206,8 @@ public class VolumeRenderer {
     }
 
     private static void matToImg(Color[][] colorMat, PixelWriter pixelWriter) {
-        for (int y = 0; y < World2.VIEW_PLANE_HEIGHT; y++) {
-            for (int x = 0; x < World2.VIEW_PLANE_WIDTH; x++) {
+        for (int y = 0; y < World.VIEW_PLANE_HEIGHT; y++) {
+            for (int x = 0; x < World.VIEW_PLANE_WIDTH; x++) {
                     pixelWriter.setColor(x, y, colorMat[y][x]);
 
 
@@ -216,7 +216,7 @@ public class VolumeRenderer {
     }
 
     private static int[][] getBoundingIndices(int sectionWidth) {
-        int numOfSections = World2.VIEW_PLANE_WIDTH / sectionWidth;
+        int numOfSections = World.VIEW_PLANE_WIDTH / sectionWidth;
         //[sectionNum][0] for start, [sectionNum][1] for end
         int[][] indices = new int[numOfSections][2];
         int curStart;
@@ -237,8 +237,8 @@ public class VolumeRenderer {
 //        }
 //        Thread[] taskThreads = new Thread[numOfThreads];
 //        CountDownLatch latch = new CountDownLatch(numOfThreads);
-//        Vector3D step = World.getStep();
-//        int sectionWidth = World.VIEW_PLANE_WIDTH / numOfThreads;
+//        Vector3D step = WorldOld.getStep();
+//        int sectionWidth = WorldOld.VIEW_PLANE_WIDTH / numOfThreads;
 //        int[][] boundingIndices = getBoundingIndices(sectionWidth);
 //        int startIndex;
 //        int endIndex;
@@ -266,7 +266,7 @@ public class VolumeRenderer {
         }
         Thread[] taskThreads = new Thread[numOfThreads];
         CountDownLatch latch = new CountDownLatch(numOfThreads);
-        int sectionWidth = World.VIEW_PLANE_WIDTH / numOfThreads;
+        int sectionWidth = WorldOld.VIEW_PLANE_WIDTH / numOfThreads;
         int[][] boundingIndices = getBoundingIndices(sectionWidth);
         int startIndex;
         int endIndex;
@@ -294,7 +294,7 @@ public class VolumeRenderer {
         }
         Thread[] taskThreads = new Thread[numOfThreads];
         CountDownLatch latch = new CountDownLatch(numOfThreads);
-        int sectionWidth = World2.VIEW_PLANE_WIDTH / numOfThreads;
+        int sectionWidth = World.VIEW_PLANE_WIDTH / numOfThreads;
         int[][] boundingIndices = getBoundingIndices(sectionWidth);
         int startIndex;
         int endIndex;
@@ -316,7 +316,7 @@ public class VolumeRenderer {
     }
 
     private static boolean isCorrectNumThreads(int numOfThreads) {
-        return World2.VIEW_PLANE_WIDTH % numOfThreads == 0;
+        return World.VIEW_PLANE_WIDTH % numOfThreads == 0;
     }
 
 }

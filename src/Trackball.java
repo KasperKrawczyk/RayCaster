@@ -2,35 +2,27 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import java.util.Arrays;
 
-public class TrackballPane extends StackPane {
-    public static final int SIDE = 256;
-    public static final float SCALE = (1f / SIDE);
+public class Trackball {
     public static final float RADIUS = 1;
 
-    private WritableImage trackballImage = new WritableImage(SIDE, SIDE);
     private final ImageView mainView;
-    private ImageView trackballView = new ImageView(trackballImage);
+
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public TrackballPane(ImageView view) {
-        super();
-        paintImage();
-        this.mainView = view;
-        this.getChildren().add(trackballView);
-        this.trackballView.setImage(trackballImage);
+    public Trackball(ImageView mainView) {
+        this.mainView = mainView;
 
-        this.trackballView.setOnMousePressed(event -> {
+        this.mainView.setOnMousePressed(event -> {
             this.start = new Point2D(event.getX(), event.getY());
         });
 
-        this.trackballView.setOnMouseDragged(event -> {
+        this.mainView.setOnMouseDragged(event -> {
             //System.out.println("dragging started");
             if (this.start == null) {
                 return;
@@ -46,7 +38,7 @@ public class TrackballPane extends StackPane {
 
         });
 
-        this.trackballView.setOnMouseReleased(event -> {
+        this.mainView.setOnMouseReleased(event -> {
 
 
             if (this.start == null) {
@@ -86,10 +78,8 @@ public class TrackballPane extends StackPane {
     private double[] getCanonical(double x, double y) {
         double[] canonCoords = new double[2]; //[x, y]
 
-        canonCoords[0] = (2 * x - SIDE - 1) / (SIDE - 1);
-        canonCoords[1] = ((2 * y - SIDE - 1) / (SIDE - 1));
-
-        System.out.println("canonCoords = " + Arrays.toString(canonCoords));
+        canonCoords[0] = (2 * x - World.VIEW_PLANE_WIDTH - 1) / (World.VIEW_PLANE_WIDTH - 1);
+        canonCoords[1] = ((2 * y - World.VIEW_PLANE_HEIGHT - 1) / (World.VIEW_PLANE_WIDTH - 1));
 
         return canonCoords;
     }
@@ -144,18 +134,4 @@ public class TrackballPane extends StackPane {
         return (Math.pow(x, 2) + Math.pow(y, 2)) <= (Math.pow(RADIUS, 2) / 2d);
     }
 
-    private void paintImage() {
-        for (int y = 0; y < SIDE; y++) {
-            for (int x = 0; x < SIDE; x++) {
-                trackballImage.getPixelWriter().setColor(x, y, Color.color(0.8, 0.2, 0.3));
-            }
-        }
-    }
-
-
-
-
-    public Quaternion getLastQuat() {
-        return lastQuat;
-    }
 }

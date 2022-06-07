@@ -14,11 +14,11 @@ public class Rotations {
         System.out.println("Quaterion1 = " + q1);
         System.out.println("Quaterion2 = " + q2);
         System.out.println("Quaterion3 = " + q3);
-        Vector3D rotatedNaive = q3.rotate(toRotate, World.ORIGIN);
-        System.out.println("rotated with q3 = " + q3.rotate(toRotate, World.ORIGIN));
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, World.ORIGIN));
+        Vector3D rotatedNaive = q3.rotate(toRotate, WorldOld.ORIGIN);
+        System.out.println("rotated with q3 = " + q3.rotate(toRotate, WorldOld.ORIGIN));
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, WorldOld.ORIGIN));
 
-        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, World.ORIGIN);
+        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, WorldOld.ORIGIN);
         System.out.println("test = " + rotated);
         System.out.println(rotated.equals(rotatedNaive));
 

@@ -13,7 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import javax.sound.midi.Track;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -50,6 +49,7 @@ public class MainWindow extends BorderPane {
     private Image mainImage;
     private ImageView mainView;
     private TrackballPane trackballPane;
+    private Trackball trackball;
     private String datasetPath;
     private int datasetSize;
     private int datasetHeight;
@@ -88,7 +88,8 @@ public class MainWindow extends BorderPane {
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
         this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane);
-        World2.initWorld2();
+        World.initWorld();
+        this.trackball = new Trackball(mainView);
 
 //        Image initRender = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
 //                80));
@@ -120,8 +121,8 @@ public class MainWindow extends BorderPane {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number >
                                         observable, Number oldValue, Number newValue) {
-                World2.initWorld2();
-                World2.moveViewPlaneByAngleDegrees(-newValue.doubleValue());
+                World.initWorld();
+                World.moveViewPortByAngleDegrees(-newValue.doubleValue());
 
                 Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
                         80));

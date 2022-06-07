@@ -161,9 +161,9 @@ public class Vector3D extends Point3D {
     public Vector3D getPerpendicularUnitY(double degrees) {
         //first, this vector is translated to the origin
         Vector3D thisTranslated = new Vector3D(
-                World.ORIGIN.getX() - this.x,
+                WorldOld.ORIGIN.getX() - this.x,
                 this.y,
-                World.ORIGIN.getZ() - this.z);
+                WorldOld.ORIGIN.getZ() - this.z);
         //then, the translated vector can be rotated
         Vector3D translatedRotated = thisTranslated.rotateY(Math.toRadians(degrees));
         //finally, the translated and rotated vector can be moved back (de-translated)

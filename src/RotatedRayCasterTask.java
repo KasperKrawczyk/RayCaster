@@ -11,10 +11,10 @@ public class RotatedRayCasterTask extends RayCasterTask {
                                 CountDownLatch latch, short[][][] vol, int startIndex, int endIndex) {
         super(image, aabb, aabbOffset, latch, vol, startIndex, endIndex);
 
-        this.stepY = World2.getStepY();
-        this.curStepY = World2.getViewPortCorner0();
-//        System.out.println("World2.getStepY() = " + World2.getStepY());
-//        System.out.println("World2.getStepX() = " + World2.getStepX());
+        this.stepY = World.getStepY();
+        this.curStepY = World.getViewPortCorner0();
+//        System.out.println("World.getStepY() = " + World.getStepY());
+//        System.out.println("World.getStepX() = " + World.getStepX());
     }
 
     @Override
@@ -24,20 +24,20 @@ public class RotatedRayCasterTask extends RayCasterTask {
 
             curStepX = startStepX;
             for (int x = startIndex; x < endIndex; x++) {
-                rayOrigin = new Vector3D(World2.getViewPortCorner0().add(curStepX));
+                rayOrigin = new Vector3D(World.getViewPortCorner0().add(curStepX));
                 //adjust for the current pixel
                 rayOrigin.setY(curStepY.getY());
 //                System.out.println("curStepY = " + curStepY);
                 curStepX = curStepX.add(stepX);
                 //
 
-//                Vector3D rotatedNormal = rotator.rotate(World.getViewPlaneNormal(), World.DATASET_CENTRE);
+//                Vector3D rotatedNormal = rotator.rotate(WorldOld.getViewPlaneNormal(), WorldOld.DATASET_CENTRE);
 //                Ray ray = new Ray(rayOrigin, rotatedNormal); //TODO for rotating the rays
 
-                Ray ray = new Ray(rayOrigin, World2.getViewPortNormal());
+                Ray ray = new Ray(rayOrigin, World.getViewPortNormal());
 //                System.out.println("ray = " + ray);
 
-//                System.out.println("VPN = " + World2.getViewPortNormal());
+//                System.out.println("VPN = " + World.getViewPortNormal());
                 Vector3D[] intersectionPoints = VolumeRenderer.translateToVolumeCoordinates(
                         aabb.getIntersections(ray, 0, Float.MAX_VALUE),
                         aabbOffset);

@@ -21,7 +21,7 @@ public class RayCasterTask implements Runnable {
                          short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;
-        this.stepX = World2.getStepX();
+        this.stepX = World.getStepX();
         this.curStepX = new Vector3D(stepX);
         this.aabbOffset = aabbOffset;
         this.latch = latch;
@@ -33,18 +33,18 @@ public class RayCasterTask implements Runnable {
 
     @Override
     public void run() {
-        for (int y = 0; y < World.VIEW_PLANE_HEIGHT; y++) {
+        for (int y = 0; y < WorldOld.VIEW_PLANE_HEIGHT; y++) {
             Vector3D curStep = startStepX;
             for (int x = startIndex; x < endIndex; x++) {
-                Vector3D rayOrigin = new Vector3D(World.getViewPlaneCorner0().add(curStep));
+                Vector3D rayOrigin = new Vector3D(WorldOld.getViewPlaneCorner0().add(curStep));
                 //adjust for the current pixel
                 rayOrigin.setY(y);
                 curStep = curStep.add(stepX);
                 //
 
-                //rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, World.DATASET_CENTRE);
+                //rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, WorldOld.DATASET_CENTRE);
 
-                Ray ray = new Ray(rayOrigin, World.getViewPlaneNormal());
+                Ray ray = new Ray(rayOrigin, WorldOld.getViewPlaneNormal());
                 Vector3D[] intersectionPoints = VolumeRenderer.translateToVolumeCoordinates(
                         aabb.getIntersections(ray, 0, Float.MAX_VALUE),
                         aabbOffset);

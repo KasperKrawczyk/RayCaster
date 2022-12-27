@@ -3,6 +3,9 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
+import java.io.*;
+import java.util.HashMap;
+
 /**
  * This utility class collects static methods necessary for resizing and gamma-correcting images
  *
@@ -16,7 +19,6 @@ public class Util {
     private Util() {
         throw new UnsupportedOperationException(INSTANTIATION_ERR_MSG);
     }
-
 
 
     public static Image rescaleBilinearColour(int newSizeX, int newSizeY, Image image) {
@@ -162,12 +164,6 @@ public class Util {
     }
 
 
-
-
-
-
-
-
     private static float[][] applyFilter(float[][] mat, int[][] filter) {
         int height = mat.length;
         int width = mat[0].length;
@@ -246,7 +242,7 @@ public class Util {
                         pixelWriter.setColor(x, y, colorAppliedReflectionModel);
                         break;
                     } else if (z == depth - 1) {
-                        pixelWriter.setColor(x, y, new Color(0,0, 0, 0));
+                        pixelWriter.setColor(x, y, new Color(0, 0, 0, 0));
 
                     }
 
@@ -268,6 +264,61 @@ public class Util {
 
 
         return updatedImage;
+    }
+
+    public static void writeHistogram(short[][][] vol) {
+        File histoFile = new File("resources/histoData.txt");
+        HashMap<Short, Integer> map = new HashMap<>();
+        int height = vol[0].length;
+        int depth = vol.length;
+        int width = vol[0][0].length;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                for (int z = 0; z < depth; z++) {
+                    short val = vol[z][y][x];
+                    if (map.containsKey(val)) {
+                        map.put(val, map.get(val) + 1);
+                    } else {
+                        map.put(val, 1);
+                    }
+
+
+                }
+            }
+        }
+
+        short min = Short.MAX_VALUE;
+        short max = Short.MIN_VALUE;
+        for (short val : map.keySet()) {
+            max = (short) Math.max(max, val);
+            min = (short) Math.min(min, val);
+        }
+        System.out.println("max = " + max);
+        System.out.println("min = " + min);
+        int histoLength = max + Math.abs(min) + 1;
+        System.out.println("histoLength = " + histoLength);
+        int[] histo = new int[histoLength];
+        for (short val : map.keySet()) {
+            histo[val + Math.abs(min)] += map.get(val);
+        }
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(histoFile), "utf-8"))) {
+            for (int i = 0; i < histo.length; i++) {
+
+                writer.append(String.valueOf(i + min)).append(",").append(String.valueOf(histo[i])).append("\n");
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        for (int i = 0; i < histoLength; i++) {
+//            System.out.println(i + " " + histo[i]);
+//        }
+
+
     }
 
 }

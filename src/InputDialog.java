@@ -16,7 +16,8 @@ public class InputDialog extends BorderPane {
     public static final String HEIGHT_LABEL = "Height";
     public static final String WIDTH_LABEL = "Width";
     public static final String CONFIRM_BTN_MSG = "Ok";
-    public static final String DEFAULT_SET_BTN_MSG = "Use default dataset";
+    public static final String HEAD_DATASET_BTN_MSG = "Use head dataset";
+    public static final String BRAIN_DATASET_BTN_MSG = "Use brain dataset";
     public static final int STD_INSET = 10;
 
     private final GridPane gridPane = new GridPane();
@@ -28,7 +29,8 @@ public class InputDialog extends BorderPane {
     private final TextField widthTextField = new TextField();
 
     private final Button confirmButton = new Button(CONFIRM_BTN_MSG);
-    private final Button defaultButton = new Button(DEFAULT_SET_BTN_MSG);
+    private final Button headButton = new Button(HEAD_DATASET_BTN_MSG);
+    private final Button brainButton = new Button(BRAIN_DATASET_BTN_MSG);
 
     public InputDialog(Stage stage) {
 
@@ -58,7 +60,7 @@ public class InputDialog extends BorderPane {
         gridPane.add(new Label(WIDTH_LABEL), 0, 3);
         gridPane.add(widthTextField, 1, 3);
 
-        buttonPane.getChildren().addAll(defaultButton, confirmButton);
+        buttonPane.getChildren().addAll(headButton, brainButton, confirmButton);
 
         confirmButton.setOnAction(event -> {
             Main.setDatasetPath(pathTextField.getText());
@@ -72,11 +74,24 @@ public class InputDialog extends BorderPane {
 
         });
 
-        defaultButton.setOnAction(event -> {
+        headButton.setOnAction(event -> {
             Main.setDatasetPath(Main.CT_HEAD_PATH);
             Main.setDatasetSize(Main.CT_HEAD_DATASET_SIZE);
             Main.setDatasetHeight(Main.CT_HEAD_SIDE);
             Main.setDatasetWidth(Main.CT_HEAD_SIDE);
+
+            stage.close();
+
+            MainWindow mainWindow = new MainWindow(stage);
+            //Test.buildTestPaneRayCast(100, 100);
+
+        });
+
+        brainButton.setOnAction(event -> {
+            Main.setDatasetPath(Main.MR_BRAIN_PATH);
+            Main.setDatasetSize(Main.MR_BRAIN_DATASET_SIZE);
+            Main.setDatasetHeight(Main.MR_BRAIN_SIDE);
+            Main.setDatasetWidth(Main.MR_BRAIN_SIDE);
 
             stage.close();
 

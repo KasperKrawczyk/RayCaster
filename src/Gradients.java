@@ -68,6 +68,21 @@ public class Gradients {
         return val1 + ((val2 - val1) * quotient);
     }
 
+    public static Vector3D lerp(Vector3D vec1, Vector3D vec2, float quotient) {
+        return new Vector3D(
+                lerp(vec1.getX(), vec2.getX(), quotient),
+                lerp(vec1.getY(), vec2.getY(), quotient),
+                lerp(vec1.getZ(), vec2.getZ(), quotient)
+        );
+    }
+
+    public static Vector3D blerp(Vector3D vec1, Vector3D vec2, Vector3D vec3, Vector3D vec4,
+                                 float quotient12, float quotient34, float quotient56) {
+        Vector3D vec5 = lerp(vec1, vec2, quotient12);
+        Vector3D vec6 = lerp(vec3, vec4, quotient34);
+        return lerp(vec5, vec6, quotient56);
+    }
+
     public static float blerp(float upLeft, float upRight, float downLeft, float downRight, float xQuotient, float yQuotient) {
         float interGreyUp = lerp(upLeft, upRight, xQuotient);
         float interGreyDown = lerp(downLeft, downRight, xQuotient);
@@ -237,14 +252,14 @@ public class Gradients {
         short upRightFar = vol[(int) x0][(int) y1][(int) z1];
         short downRightFar = vol[(int) x1][(int) y1][(int) z1];
 
-        double closeInterpolated = blerp(upLeftClose, upRightClose,
+        float closeInterpolated = blerp(upLeftClose, upRightClose,
                 downLeftClose, downRightClose,
                 xPrim, yPrim);
-        double farInterpolated = blerp(upLeftFar, upRightFar,
+        float farInterpolated = blerp(upLeftFar, upRightFar,
                 downLeftFar, downRightFar,
                 xPrim, yPrim);
 
-        double depthInterpolated = lerp(closeInterpolated, farInterpolated, zPrim);
+        float depthInterpolated = lerp(closeInterpolated, farInterpolated, zPrim);
 
         return (short) depthInterpolated;
 

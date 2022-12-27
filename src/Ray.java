@@ -1,6 +1,6 @@
 public class Ray extends Vector3D {
 
-    private Vector3D direction;
+    private final Vector3D direction;
 
     public Ray(Vector3D origin, Vector3D direction) {
         super(origin);

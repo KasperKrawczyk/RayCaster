@@ -10,14 +10,12 @@ public class VolumeRenderer {
 
     public static final String NUM_OF_THREADS_ERR_MSG = "The number of threads should divide the image width with no remainder";
 
-    public static ArrayList<VolumeLocation> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
-        ArrayList<VolumeLocation> list = new ArrayList<>();
+    public static ArrayList<Voxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
+        ArrayList<Voxel> list = new ArrayList<>();
         int depth = vol.length;
         int height = vol[0].length;
         int width = vol[0][0].length;
 
-
-//        System.out.println(intersection0 + " " + intersection1);
         Point3D point0 = Point3D.Point3DfromVector(intersection0);
         Point3D point1 = Point3D.Point3DfromVector(intersection1);
         Vector3D step = intersection1.sub(intersection0).normalize();
@@ -32,7 +30,6 @@ public class VolumeRenderer {
             curSamplePoint.setY(Math.min(Math.max(0, curSamplePoint.getY()), height - 1));
             curSamplePoint.setZ(Math.min(Math.max(0, curSamplePoint.getZ()), depth - 1));
 
-            //short curSampleShort = vol[(int) curSamplePoint.getX()][(int) curSamplePoint.getY()][(int) curSamplePoint.getZ()];
 
             short interpolatedSampleShort = Gradients.tlerp(
                     curSamplePoint.getX(),
@@ -47,7 +44,7 @@ public class VolumeRenderer {
                     curSamplePoint.getZ(),
                     vol).flip();
 
-            VolumeLocation volumeLocation = new VolumeLocation(
+            Voxel voxel = new Voxel(
                     curSamplePoint.getX(),
                     curSamplePoint.getY(),
                     curSamplePoint.getZ(),
@@ -55,19 +52,13 @@ public class VolumeRenderer {
                     interpolatedSampleShort
             );
 
-            list.add(volumeLocation);
-            //float t = distance == 0 ? 0.0f : (float) (step / distance);
-            //System.out.println(curSamplePoint);
+            list.add(voxel);
             curSamplePoint.moveByVector(step);
-
-            //System.out.println(step);
         }
-
-        //System.out.println(list.size());
         return list;
     }
 
-    public static Color compositeSamples(ArrayList<VolumeLocation> list) {
+    public static Color compositeSamples(ArrayList<Voxel> list) {
         double r = 0;
         double g = 0;
         double b = 0;
@@ -78,7 +69,7 @@ public class VolumeRenderer {
         double transparencyAcc = 1;
 
 
-        for (VolumeLocation sample : list) {
+        for (Voxel sample : list) {
             short sampleValue = sample.getMaterialValue();
             //opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
 
@@ -93,6 +84,11 @@ public class VolumeRenderer {
                 r = 1.0;
                 g = 1.0;
                 b = 1.0;
+
+                // nicer bone?
+//                r = 0.8902;
+//                g = 0.8549;
+//                b = 0.7882;
                 opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
             } else {
                 r = 1.0;
@@ -102,7 +98,7 @@ public class VolumeRenderer {
             }
 
             Color shadedSample = Reflections.applyLambertianReflection(
-                    World.getLight(),
+                    Camera.getLight(),
                     sample,
                     sample.getGradient(),
                     new Color(r, g, b, opacity)
@@ -130,7 +126,7 @@ public class VolumeRenderer {
 
     protected static Color sampleCompositeShade(Vector3D intersectionVector0, Vector3D intersectionVector1,
                                                 short[][][] vol) {
-        ArrayList<VolumeLocation> list = collectSamples(intersectionVector0, intersectionVector1, vol);
+        ArrayList<Voxel> list = collectSamples(intersectionVector0, intersectionVector1, vol);
         return compositeSamples(list);
 
 
@@ -140,8 +136,8 @@ public class VolumeRenderer {
         Vector3D aabbOffset = new Vector3D(0, 0, 0);
 
 
-        WritableImage renderedImage = new WritableImage(World.VIEW_PLANE_WIDTH, World.VIEW_PLANE_HEIGHT);
-        Color[][] colorMat = new Color[World.VIEW_PLANE_HEIGHT][World.VIEW_PLANE_WIDTH];
+        WritableImage renderedImage = new WritableImage(Camera.VIEW_PLANE_WIDTH, Camera.VIEW_PLANE_HEIGHT);
+        Color[][] colorMat = new Color[Camera.VIEW_PLANE_HEIGHT][Camera.VIEW_PLANE_WIDTH];
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         AABB aabb = new AABB(
                 new Vector3D(255, 112, 255).add(aabbOffset),
@@ -190,15 +186,15 @@ public class VolumeRenderer {
         }
         Vector3D[] volumeMatrixIntersections = new Vector3D[2];
         volumeMatrixIntersections[0] = new Vector3D(
-                intersections[0].getZ() - offset.getZ(),
-                intersections[0].getY() - offset.getY(),
-                intersections[0].getX() - offset.getX()
+                intersections[0].getZ(),
+                intersections[0].getY(),
+                intersections[0].getX()
         );
 
         volumeMatrixIntersections[1] = new Vector3D(
-                intersections[1].getZ() - offset.getZ(),
-                intersections[1].getY() - offset.getY(),
-                intersections[1].getX() - offset.getX()
+                intersections[1].getZ(),
+                intersections[1].getY(),
+                intersections[1].getX()
         );
 
         return volumeMatrixIntersections;
@@ -206,17 +202,15 @@ public class VolumeRenderer {
     }
 
     private static void matToImg(Color[][] colorMat, PixelWriter pixelWriter) {
-        for (int y = 0; y < World.VIEW_PLANE_HEIGHT; y++) {
-            for (int x = 0; x < World.VIEW_PLANE_WIDTH; x++) {
+        for (int y = 0; y < Camera.VIEW_PLANE_HEIGHT; y++) {
+            for (int x = 0; x < Camera.VIEW_PLANE_WIDTH; x++) {
                     pixelWriter.setColor(x, y, colorMat[y][x]);
-
-
             }
         }
     }
 
     private static int[][] getBoundingIndices(int sectionWidth) {
-        int numOfSections = World.VIEW_PLANE_WIDTH / sectionWidth;
+        int numOfSections = Camera.VIEW_PLANE_WIDTH / sectionWidth;
         //[sectionNum][0] for start, [sectionNum][1] for end
         int[][] indices = new int[numOfSections][2];
         int curStart;
@@ -259,33 +253,6 @@ public class VolumeRenderer {
 //        }
 //    }
 
-    private static void runRayCasterTasks(int numOfThreads, Color[][] colorMat, AABB aabb,
-                                          Vector3D aabbOffset, short[][][] vol) {
-        if (!isCorrectNumThreads(numOfThreads)) {
-            throw new IllegalArgumentException(NUM_OF_THREADS_ERR_MSG);
-        }
-        Thread[] taskThreads = new Thread[numOfThreads];
-        CountDownLatch latch = new CountDownLatch(numOfThreads);
-        int sectionWidth = WorldOld.VIEW_PLANE_WIDTH / numOfThreads;
-        int[][] boundingIndices = getBoundingIndices(sectionWidth);
-        int startIndex;
-        int endIndex;
-        for (int numOfSection = 0; numOfSection < numOfThreads; numOfSection++) {
-            startIndex = boundingIndices[numOfSection][0];
-            endIndex = boundingIndices[numOfSection][1];
-            RayCasterTask task = new RayCasterTask(
-                    colorMat, aabb, aabbOffset, latch, vol, startIndex, endIndex
-            );
-            taskThreads[numOfSection] = new Thread(task);
-            taskThreads[numOfSection].start();
-        }
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static void runRotatedRayCasterTasks(int numOfThreads, Color[][] colorMat, AABB aabb,
                                                 Vector3D aabbOffset, short[][][] vol) {
@@ -294,14 +261,14 @@ public class VolumeRenderer {
         }
         Thread[] taskThreads = new Thread[numOfThreads];
         CountDownLatch latch = new CountDownLatch(numOfThreads);
-        int sectionWidth = World.VIEW_PLANE_WIDTH / numOfThreads;
+        int sectionWidth = Camera.VIEW_PLANE_WIDTH / numOfThreads;
         int[][] boundingIndices = getBoundingIndices(sectionWidth);
         int startIndex;
         int endIndex;
         for (int numOfSection = 0; numOfSection < numOfThreads; numOfSection++) {
             startIndex = boundingIndices[numOfSection][0];
             endIndex = boundingIndices[numOfSection][1];
-            RayCasterTask task = new RotatedRayCasterTask(
+            RotatedRayCasterTask task = new RotatedRayCasterTask(
                     colorMat, aabb, aabbOffset, latch, vol, startIndex, endIndex
             );
             taskThreads[numOfSection] = new Thread(task);
@@ -316,7 +283,7 @@ public class VolumeRenderer {
     }
 
     private static boolean isCorrectNumThreads(int numOfThreads) {
-        return World.VIEW_PLANE_WIDTH % numOfThreads == 0;
+        return Camera.VIEW_PLANE_WIDTH % numOfThreads == 0;
     }
 
 }

@@ -1,16 +1,17 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,15 +82,17 @@ public class MainWindow extends BorderPane {
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);
-        this.angleSlider = new Slider(0.0, 360.0, 0.0);
+        this.angleSlider = new Slider(0.0, 90.0, 0.0);
         this.renderButton = new RadioButton(RENDER_BTN_MSG);
         this.trackballPane = new TrackballPane(this.mainView);
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
-        this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane);
-        World.initWorld();
+        this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane, buildLightInputsGrid());
+        Camera.initCamera();
         this.trackball = new Trackball(mainView);
+
+        Util.writeHistogram(DataSet.getBytes());
 
 //        Image initRender = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
 //                80));
@@ -100,7 +103,7 @@ public class MainWindow extends BorderPane {
 
         this.renderButton.setOnAction(event -> {
             Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                    80));
+                    Trackball.NUM_OF_THREADS));
             mainView.setImage(renderedImage);
         });
 
@@ -119,13 +122,14 @@ public class MainWindow extends BorderPane {
         });
 
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number >
+            public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                World.initWorld();
-                World.moveViewPortByAngleDegrees(-newValue.doubleValue());
+                Camera.initCamera();
+                System.out.println(newValue.doubleValue());
+                Camera.moveViewPortByAngleDegrees(newValue.doubleValue());
 
                 Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                        80));
+                        Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }
         });
@@ -173,7 +177,7 @@ public class MainWindow extends BorderPane {
 
             Vector3D light = new Vector3D(127 - (int) event.getX(), 127 - (int) event.getY(), yDelta.get());
             Vector3D eye = new Vector3D(127, 127, -200);
-            System.out.println(yDelta);
+//            System.out.println(yDelta);
             Image updatedImage = Util.updateRendering(currentSize,
                     currentSize,
                     currentAlgo,
@@ -205,7 +209,52 @@ public class MainWindow extends BorderPane {
         return touchStackPane;
     }
 
-    public ImageView getMainView() {
-        return mainView;
+    public GridPane buildLightInputsGrid() {
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setVgap(5);
+        grid.setHgap(5);
+        Label labelX = new Label("Light x:");
+        TextField textFieldX = new TextField();
+        Label labelY = new Label("Light y:");
+        TextField textFieldY = new TextField();
+        Label labelZ = new Label("Light z:");
+        TextField textFieldZ = new TextField();
+        Button submitBtn = new Button("Submit");
+        submitBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String xString = textFieldX.getText();
+                String yString = textFieldY.getText();
+                String zString = textFieldZ.getText();
+                if (StringUtil.isNotEmpty(xString)
+                        && StringUtil.isNotEmpty(yString)
+                        && StringUtil.isNotEmpty(zString)) {
+                    double newX;
+                    double newY;
+                    double newZ;
+                    try {
+                        newX = Double.parseDouble(xString);
+                        newY = Double.parseDouble(yString);
+                        newZ = Double.parseDouble(zString);
+                    } catch (NumberFormatException nfe) {
+                        return;
+                    }
+                    Camera.moveLightTo(new Point3D(newX, newY, newZ));
+                    Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                            Trackball.NUM_OF_THREADS));
+                    mainView.setImage(renderedImage);
+                }
+            }
+        });
+        GridPane.setConstraints(labelX, 0, 0);
+        GridPane.setConstraints(textFieldX, 1, 0);
+        GridPane.setConstraints(labelY, 0, 1);
+        GridPane.setConstraints(textFieldY, 1, 1);
+        GridPane.setConstraints(labelZ, 0, 2);
+        GridPane.setConstraints(textFieldZ, 1, 2);
+        GridPane.setConstraints(submitBtn, 0, 3);
+        grid.getChildren().addAll(labelX, textFieldX, labelY, textFieldY, labelZ, textFieldZ, submitBtn);
+        return grid;
     }
 }

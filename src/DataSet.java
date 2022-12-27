@@ -62,6 +62,10 @@ public class DataSet {
         this.set3DGradients(getBytes());
         this.setOpacityLUT();
         this.parseGrey();
+        System.out.println("----------DATASET----------");
+        System.out.println("WIDTH - X axis = " + bytes[0][0].length);
+        System.out.println("HEIGHT - Y axis = " + bytes[0].length);
+        System.out.println("DEPTH - Z axis = " + bytes.length);
     }
 
     /**

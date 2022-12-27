@@ -122,7 +122,7 @@ public class Test {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number >
                                         observable, Number oldValue, Number newValue) {
-                WorldOld.setViewPlaneAngle(-newValue.doubleValue());
+//                World.setViewPlaneAngle(-newValue.doubleValue());
 //                Image newImage = (VolumeRenderer.volumeRayCast(DataSet.getBytes()));
                 //Image newImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(), 80));
 

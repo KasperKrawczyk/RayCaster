@@ -1,9 +1,9 @@
-public class VolumeLocation extends Vector3D {
+public class Voxel extends Vector3D {
 
     private Vector3D gradient;
     private short materialValue;
 
-    public VolumeLocation(double x, double y, double z, Vector3D gradient, short materialValue) {
+    public Voxel(double x, double y, double z, Vector3D gradient, short materialValue) {
         super(x, y, z);
         this.gradient = gradient;
         this.materialValue = materialValue;

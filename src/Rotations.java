@@ -12,16 +12,21 @@ public class Rotations {
         Quaternion q2 = new Quaternion(45, new Vector3D(1, 0, 0));
         Quaternion q3 = q2.mult(q1);
         System.out.println("Quaterion1 = " + q1);
-        System.out.println("Quaterion2 = " + q2);
-        System.out.println("Quaterion3 = " + q3);
-        Vector3D rotatedNaive = q3.rotate(toRotate, WorldOld.ORIGIN);
-        System.out.println("rotated with q3 = " + q3.rotate(toRotate, WorldOld.ORIGIN));
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, WorldOld.ORIGIN));
+//        System.out.println("Quaterion2 = " + q2);
+//        System.out.println("Quaterion3 = " + q3);
 
-        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, WorldOld.ORIGIN);
-        System.out.println("test = " + rotated);
-        System.out.println(rotated.equals(rotatedNaive));
+//        System.out.println("rotated with q3 = " + q3.rotate(toRotate, World.ORIGIN));
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
+        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
+        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
+        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
 
+        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, Camera.ORIGIN);
+        System.out.println("q1 norm = " + q1.normalize());
+        System.out.println("q1 norm2 = " + q1.normalize2());
 
     }
 }

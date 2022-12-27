@@ -13,14 +13,18 @@ You may use libraries / IDE to achieve a better GUI
 */
 
 import java.io.File;
-//import javafx.scene.control.Label;
 
 
 public class Main  {
 
     public static final String CT_HEAD_PATH = String.join(File.separator, "resources", "CThead");
+    public static final String MR_BRAIN_PATH = String.join(File.separator, "resources", "MRbrain");
+
     public static final int CT_HEAD_DATASET_SIZE = 113;
     public static final int CT_HEAD_SIDE = 256;
+
+    public static final int MR_BRAIN_DATASET_SIZE = 109;
+    public static final int MR_BRAIN_SIDE = 256;
 
     private static String datasetPath;
     private static int datasetSize;

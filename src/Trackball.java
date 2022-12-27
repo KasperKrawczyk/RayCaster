@@ -95,7 +95,7 @@ public class Trackball {
         } else {
             z = hyperbolicDepth(x, y);
         }
-        Vector3D v = new Vector3D(canonCoords[0], canonCoords[1], z);
+        Vector3D v = new Vector3D(canonCoords[0], -canonCoords[1], z);
         return v;
     }
 

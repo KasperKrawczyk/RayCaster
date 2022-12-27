@@ -187,13 +187,13 @@ public class VolumeRenderer {
         Vector3D[] volumeMatrixIntersections = new Vector3D[2];
         volumeMatrixIntersections[0] = new Vector3D(
                 intersections[0].getZ(),
-                intersections[0].getY(),
+                113 - intersections[0].getY(),
                 intersections[0].getX()
         );
 
         volumeMatrixIntersections[1] = new Vector3D(
                 intersections[1].getZ(),
-                intersections[1].getY(),
+                113 - intersections[1].getY(),
                 intersections[1].getX()
         );
 

@@ -91,6 +91,7 @@ public class Camera {
 
         updateEye();
 
+
 //        System.out.println("VPCentre to DTSCentre");
 //        System.out.println(viewPortCentre.sub(DATASET_CENTRE).magnitude());
 
@@ -142,7 +143,7 @@ public class Camera {
 
     }
 
-    private void printCameraUpdate() {
+    private static void printCameraUpdate() {
         System.out.println("----------WORLD UPDATE----------");
         System.out.println("viewPortCentre = " + viewPortCentre);
         System.out.println("viewPortNormal = " + viewPortNormal);

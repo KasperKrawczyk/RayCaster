@@ -235,7 +235,7 @@ public class MainWindow extends BorderPane {
                     double newZ;
                     try {
                         newX = Double.parseDouble(xString);
-                        newY = Double.parseDouble(yString);
+                        newY = -Double.parseDouble(yString);
                         newZ = Double.parseDouble(zString);
                     } catch (NumberFormatException nfe) {
                         return;

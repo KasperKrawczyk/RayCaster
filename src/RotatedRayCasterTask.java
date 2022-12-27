@@ -29,7 +29,7 @@ public class RotatedRayCasterTask extends RayCasterTask implements Runnable {
                         aabb.getIntersections(ray, 0, Float.MAX_VALUE),
                         aabbOffset);
 
-                Vector3D[] origin = ORIGIN_AABB.getIntersections(ray, 0, Float.MAX_VALUE);
+//                Vector3D[] origin = ORIGIN_AABB.getIntersections(ray, 0, Float.MAX_VALUE);
 
                 Color color;
                 if (intersectionPoints != null) {
@@ -38,9 +38,7 @@ public class RotatedRayCasterTask extends RayCasterTask implements Runnable {
                             intersectionPoints[1],
                             vol
                     );
-                } else if (origin != null) {
-                    color = Color.RED;
-                }else {
+                } else {
                     color = Color.WHITE;
                 }
                 image[y][x] = color;

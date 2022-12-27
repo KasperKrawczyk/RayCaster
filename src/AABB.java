@@ -140,7 +140,8 @@ public class AABB {
         if ((tMin < maxDist) && (tMax > minDist)) {
             return new Vector3D[]{
                     ray.getPointAtDistance((float) tMin),
-                    ray.getPointAtDistance((float) tMax)};
+                    ray.getPointAtDistance((float) tMax)
+            };
         }
         return null;
     }

@@ -53,7 +53,7 @@ public class VolumeRenderer {
             );
 
             list.add(voxel);
-            curSamplePoint.moveByVector(step);
+            curSamplePoint.moveThisByVector(step);
         }
         return list;
     }

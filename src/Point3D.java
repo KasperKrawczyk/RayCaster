@@ -42,10 +42,14 @@ public class Point3D {
         );
     }
 
-    public void moveByVector(Vector3D v)  {
+    public void moveThisByVector(Vector3D v)  {
         this.x += v.getX();
         this.y += v.getY();
         this.z += v.getZ();
+    }
+
+    public Vector3D newMovedByVector(Vector3D v)  {
+        return new Vector3D(this.x + v.getX(), this.y + v.getY(), this.z + v.getZ());
     }
 
     public void moveByVectorMatrix(Vector3D v)  {

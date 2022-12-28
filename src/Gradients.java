@@ -182,6 +182,32 @@ public class Gradients {
             x0 = vol[z - zHi][y - yHi][x - xHi] + ((vol[z - zLo][y - yLo][x - xLo] - vol[z - zHi][y - yHi][x - xHi]) * decimalPart);
             x1 = vol[z][y][x] + ((vol[z + zLo][y + yLo][x + xLo] - vol[z][y][x]) * decimalPart);
         }
+
+        return x1 - x0;
+    }
+
+
+    private static float getLinearGradient2(int z, int y, int x, int alongAxis, int axisLength,
+                                           int zLo, int zHi,
+                                           int yLo, int yHi,
+                                           int xLo, int xHi,
+                                           short[][][] vol, float decimalPart) {
+        float x0;
+        float x1;
+
+        if (alongAxis < 3) {
+            //forward difference
+            x0 = lerp(vol[z][y][x], vol[z + zLo][y + yLo][x + xLo], decimalPart);
+            x1 = lerp(vol[z + zLo][y + yLo][x + xLo], vol[z + zHi][y + yHi][x + xHi], decimalPart);
+        } else if (alongAxis > axisLength - 3) {
+            //backward difference
+            x0 = lerp(vol[z - zHi][y - yHi][x - xHi], vol[z - zLo][y - yLo][x - xLo], decimalPart);
+            x1 = lerp(vol[z - zLo][y - yLo][x - xLo], vol[z][y][x], decimalPart);
+        } else {
+            //central difference
+            x0 = lerp(vol[z - zHi][y - yHi][x - xHi], vol[z - zLo][y - yLo][x - xLo], decimalPart);
+            x1 = lerp(vol[z + zLo][y + yLo][x + xLo], vol[z + zHi][y + yHi][x + xHi], decimalPart);
+        }
         return x1 - x0;
     }
 

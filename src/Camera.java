@@ -7,6 +7,7 @@ public class Camera {
     public static final int VIEW_PORT_DATASET_CENTRE_DISTANCE = 0;
     public static final int VIEW_PORT_EYE_DISTANCE_MULT = (int) (VIEW_PLANE_WIDTH / 1.38);
     public static final float WIDTH_HEIGHT_RESOLUTION = (float) VIEW_PLANE_WIDTH / (float) VIEW_PLANE_HEIGHT;
+    public static final int DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER = 100;
     public static Vector3D viewPortCentre;
     public static Vector3D viewPortCorner0; //start of the matrix, first row
     public static Vector3D viewPortCorner1; //end of the matrix, first row
@@ -17,6 +18,8 @@ public class Camera {
     public static Vector3D light;
     public static double circleRadius;
     public static double viewPortAngle;
+
+    public static int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER;
 
     public static void initCamera() {
         initViewPortCentre();
@@ -42,7 +45,7 @@ public class Camera {
                         .sub(viewPortCentre)
                         .normalize()
                         .flip()
-                        .mult(VIEW_PORT_DATASET_CENTRE_DISTANCE)
+                        .mult(VIEW_PORT_EYE_DISTANCE_MULT)
                 );
     }
 
@@ -83,31 +86,42 @@ public class Camera {
         //first, the centre point of the view plane is calculated
         viewPortCentre = rotator.rotate(viewPortNormal, DATASET_CENTRE);
         viewPortNormal = DATASET_CENTRE.sub(viewPortCentre).normalize();
-//        System.out.println("viewPortCentre = " + viewPortCentre);
-//        System.out.println("viewPortNormal = " + viewPortNormal);
+        viewPortCentre = DATASET_CENTRE
+                .newMovedByVector(viewPortNormal
+                        .flip()
+                        .mult(DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER)
+                );
+        viewPortCentre.moveThisByVector(viewPortNormal.mult(viewPortDatasetCentreDistanceMultiplier));
+        //then, the VP corners 0, 1, 2, and 3 can be derived therefrom
+        updateViewPortCorners();
+        //lastly, we can move the camera lense to position it along its dataset centre <> viewport centre axis,
+        //behind the viewport
+        updateEye();
+    }
+
+    public static void updateViewPort(int newDistanceMultiplier) {
+        setViewPortDatasetCentreDistanceMultiplier(newDistanceMultiplier);
+        //first, the new centre point of the view plane is calculated
+        viewPortCentre = DATASET_CENTRE.newMovedByVector(viewPortNormal.flip().mult(DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER));
+        viewPortCentre.moveThisByVector(viewPortNormal.mult(viewPortDatasetCentreDistanceMultiplier));
 
         //then, the VP corners 0, 1, 2, and 3 can be derived therefrom
         updateViewPortCorners();
-
+        //lastly, we can move the camera lense to position it along its dataset centre <> viewport centre axis,
+        //behind the viewport
         updateEye();
-
-
-//        System.out.println("VPCentre to DTSCentre");
-//        System.out.println(viewPortCentre.sub(DATASET_CENTRE).magnitude());
-
-
     }
 
     public static void moveViewPortByAngleDegrees(double degrees) {
         //first, the centre floor point of the view plane is calculated
         viewPortCentre = Quaternion.makeExactQuaternionDegrees(degrees, Axis.Y.getVector())
                 .rotate(viewPortCentre, DATASET_CENTRE);
-
-        //then, the VP corners 0, 1, 2, and 3 can be derived therefrom
         viewPortNormal = DATASET_CENTRE.sub(viewPortCentre).normalize();
 
+        //then, the VP corners 0, 1, 2, and 3 can be derived therefrom
         updateViewPortCorners();
-
+        //lastly, we can move the camera lense to position it along its dataset centre <> viewport centre axis,
+        //behind the viewport
         updateEye();
 
     }
@@ -156,7 +170,7 @@ public class Camera {
     private static void updateEye() {
         Vector3D v = viewPortNormal.flip().mult(VIEW_PORT_EYE_DISTANCE_MULT);
         eye = new Vector3D(viewPortCentre);
-        eye.moveByVector(v);
+        eye.moveThisByVector(v);
     }
 
     /**
@@ -209,5 +223,13 @@ public class Camera {
 
     public static Vector3D getEye() {
         return eye;
+    }
+
+    public static int getViewPortDatasetCentreDistanceMultiplier() {
+        return viewPortDatasetCentreDistanceMultiplier;
+    }
+
+    public static void setViewPortDatasetCentreDistanceMultiplier(int viewPortDatasetCentreDistanceMultiplier) {
+        Camera.viewPortDatasetCentreDistanceMultiplier = viewPortDatasetCentreDistanceMultiplier;
     }
 }

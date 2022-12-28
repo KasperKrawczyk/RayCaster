@@ -11,7 +11,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,7 +87,7 @@ public class MainWindow extends BorderPane {
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
-        this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane, buildLightInputsGrid());
+        this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane, buildLightInputsGrid(), buildCameraInputs());
         Camera.initCamera();
         this.trackball = new Trackball(mainView);
 
@@ -256,5 +255,24 @@ public class MainWindow extends BorderPane {
         GridPane.setConstraints(submitBtn, 0, 3);
         grid.getChildren().addAll(labelX, textFieldX, labelY, textFieldY, labelZ, textFieldZ, submitBtn);
         return grid;
+    }
+
+    public VBox buildCameraInputs() {
+        Slider slider = new Slider(-800, 400, 0);
+        Label sliderLabel = new Label("Camera distance");
+
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number>
+                                        observable, Number oldValue, Number newValue) {
+                Camera.updateViewPort(newValue.intValue());
+                System.out.println(newValue);
+                Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                        Trackball.NUM_OF_THREADS));
+                mainView.setImage(renderedImage);
+            }
+        });
+
+        VBox vBox = new VBox(sliderLabel, slider);
+        return vBox;
     }
 }

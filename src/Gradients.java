@@ -153,8 +153,8 @@ public class Gradients {
 
     public static Vector3D get3DGradientNonInterpolated(int z, int y, int x, short[][][] vol) {
 
-        float gradientZ = getLinearGradientNonInterpolated(z, y, x, z, vol.length, 1, 0,0, vol);
-        float gradientY = getLinearGradientNonInterpolated(z, y, x, y, vol[0].length, 0, 1 ,0, vol);
+        float gradientZ = getLinearGradientNonInterpolated(z, y, x, z, vol.length, 1, 0, 0, vol);
+        float gradientY = getLinearGradientNonInterpolated(z, y, x, y, vol[0].length, 0, 1, 0, vol);
         float gradientX = getLinearGradientNonInterpolated(z, y, x, x, vol[0][0].length, 0, 0, 1, vol);
 
 
@@ -188,10 +188,10 @@ public class Gradients {
 
 
     private static float getLinearGradient2(int z, int y, int x, int alongAxis, int axisLength,
-                                           int zLo, int zHi,
-                                           int yLo, int yHi,
-                                           int xLo, int xHi,
-                                           short[][][] vol, float decimalPart) {
+                                            int zLo, int zHi,
+                                            int yLo, int yHi,
+                                            int xLo, int xHi,
+                                            short[][][] vol, float decimalPart) {
         float x0;
         float x1;
 
@@ -213,6 +213,7 @@ public class Gradients {
 
     /**
      * Non-interpolated gradient
+     *
      * @param z
      * @param y
      * @param x
@@ -225,8 +226,8 @@ public class Gradients {
      * @return
      */
     private static float getLinearGradientNonInterpolated(int z, int y, int x, int alongAxis, int axisLength,
-                                           int zLo, int yLo, int xLo,
-                                           short[][][] vol) {
+                                                          int zLo, int yLo, int xLo,
+                                                          short[][][] vol) {
         float x0;
         float x1;
 
@@ -290,4 +291,120 @@ public class Gradients {
         return (short) depthInterpolated;
 
     }
+
+    public static short[][][] rescaleTricubic(short[][][] vol, int newSizeX, int newSizeY, int newSizeZ) {
+        int oldSizeX = vol[0][0].length;
+        int oldSizeY = vol[0].length;
+        int oldSizeZ = vol.length;
+        short[][][] rescaled = new short[newSizeZ][newSizeY][newSizeX];
+
+        float zPrim;
+        float yPrim;
+        float xPrim;
+        float x0;
+        float y0;
+        float z0;
+
+        for (int z = 0; z < newSizeZ; z++) {
+            for (int y = 0; y < newSizeY; y++) {
+                for (int x = 0; x < newSizeX; x++) {
+
+                    yPrim = ((float) y / (float) (newSizeY - 1)) * (oldSizeY - 1);
+                    xPrim = ((float) x / (float) (newSizeX - 1)) * (oldSizeX - 1);
+                    zPrim = ((float) z / (float) (newSizeZ - 1)) * (oldSizeZ - 1);
+
+                    x0 = (float) Math.max(Math.min(Math.floor(xPrim), oldSizeX - 1), 0);
+                    y0 = (float) Math.max(Math.min(Math.floor(yPrim), oldSizeY - 1), 0);
+                    z0 = (float) Math.max(Math.min(Math.ceil(zPrim), oldSizeZ - 1), 0);
+
+                    xPrim -= x0;
+                    yPrim -= y0;
+                    zPrim -= z0;
+
+                    rescaled[z][y][x] = (short) interpolateTricubic(vol, (int) x0, (int) y0, (int) z0,
+                            xPrim, yPrim, zPrim);
+
+                }
+            }
+
+        }
+        return rescaled;
+
+    }
+
+    public static float interpolateCubic(float[] arr, int curX, float xPrim) {
+        float p0 = 0;
+        float p1 = arr[0];
+        float p2 = arr[1];
+        float p3 = 0;
+
+        if (curX - 1 < 0) {
+            p0 = 2 * p1 - p2;
+        } else if (curX + 2 == arr.length) {
+            p3 = 2 * p2 - p1;
+        }
+
+        return (float) (p1 + 0.5 * xPrim * (p2 - p0 + xPrim * (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3 + xPrim * (3.0 * (p1 - p2) + p3 - p0))));
+    }
+
+    public static float interpolateCubic(short[] arr, int curX, float xPrim) {
+        float p0 = 0;
+        float p1 = arr[0];
+        float p2 = arr[1];
+        float p3 = 0;
+
+        if (curX - 1 < 0) {
+            p0 = 2 * p1 - p2;
+        } else if (curX + 2 == arr.length) {
+            p3 = 2 * p2 - p1;
+        }
+
+        return (float) (p1 + 0.5 * xPrim * (p2 - p0 + xPrim * (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3 + xPrim * (3.0 * (p1 - p2) + p3 - p0))));
+    }
+
+    private static float interpolateTricubic(short[][][] vol, int curX, int curY, int curZ,
+                                             float xPrim, float yPrim, float zPrim) {
+        float p0;
+        float p1 = interpolateBicubic(vol[curZ], curX, curY, yPrim, zPrim);
+        float p2 = interpolateBicubic(vol[curZ + 1], curX, curY, yPrim, zPrim);
+        float p3;
+
+        if (curZ - 1 < 0) {
+            p0 = 2 * p1 - p2;
+            p3 = interpolateBicubic(vol[curZ + 2], curX, curY, yPrim, zPrim);
+        } else if (curZ + 2 == vol.length) {
+            p0 = interpolateBicubic(vol[curZ - 1], curX, curY, yPrim, zPrim);
+            p3 = 2 * p2 - p1;
+        } else {
+            p0 = interpolateBicubic(vol[curZ - 1], curX, curY, yPrim, zPrim);
+            p3 = interpolateBicubic(vol[curZ + 2], curX, curY, yPrim, zPrim);
+        }
+
+        return interpolateCubic(new float[] {p0, p1, p2, p3}, curX, xPrim);
+    }
+
+    public static float interpolateBicubic(short[][] mat, int curX, int curY, float xPrim, float yPrim) {
+        float[] intermediate = new float[4];
+
+        float p0;
+        float p1 = interpolateCubic(mat[curY], curY, yPrim);
+        float p2 = interpolateCubic(mat[curY + 1], curY, yPrim);
+        float p3;
+
+
+        if (curY - 1 < 0) {
+            p0 = 2 * p1 - p2;
+            p3 = interpolateCubic(mat[curY + 2], curY, yPrim);
+        } else if (curY + 2 == mat[0].length) {
+            p0 = interpolateCubic(mat[curY - 1], curY, yPrim);
+            p3 = 2 * p2 - p1;
+        } else {
+            p0 = interpolateCubic(mat[curY - 1], curY, yPrim);
+            p3 = interpolateCubic(mat[curY + 2], curY, yPrim);
+        }
+
+
+        return interpolateCubic(new float[] {p0, p1, p2, p3}, curX, xPrim);
+    }
+
 }

@@ -140,7 +140,7 @@ public class VolumeRenderer {
         Color[][] colorMat = new Color[Camera.VIEW_PLANE_HEIGHT][Camera.VIEW_PLANE_WIDTH];
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         AABB aabb = new AABB(
-                new Vector3D(255, 112, 255).add(aabbOffset),
+                new Vector3D(255, Main.getDatasetSize() - 1, 255).add(aabbOffset),
                 new Vector3D(0, 0, 0).add(aabbOffset)
         );
 
@@ -187,13 +187,13 @@ public class VolumeRenderer {
         Vector3D[] volumeMatrixIntersections = new Vector3D[2];
         volumeMatrixIntersections[0] = new Vector3D(
                 intersections[0].getZ(),
-                113 - intersections[0].getY(),
+                Main.getDatasetSize() - intersections[0].getY(),
                 intersections[0].getX()
         );
 
         volumeMatrixIntersections[1] = new Vector3D(
                 intersections[1].getZ(),
-                113 - intersections[1].getY(),
+                Main.getDatasetSize() - intersections[1].getY(),
                 intersections[1].getX()
         );
 

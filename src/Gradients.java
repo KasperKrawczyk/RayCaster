@@ -315,7 +315,7 @@ public class Gradients {
 
                     x0 = (float) Math.max(Math.min(Math.floor(xPrim), oldSizeX - 1), 0);
                     y0 = (float) Math.max(Math.min(Math.floor(yPrim), oldSizeY - 1), 0);
-                    z0 = (float) Math.max(Math.min(Math.ceil(zPrim), oldSizeZ - 1), 0);
+                    z0 = (float) Math.max(Math.min(Math.floor(zPrim), oldSizeZ - 1), 0);
 
                     xPrim -= x0;
                     yPrim -= y0;
@@ -332,31 +332,44 @@ public class Gradients {
 
     }
 
-    public static float interpolateCubic(float[] arr, int curX, float xPrim) {
-        float p0 = 0;
-        float p1 = arr[0];
-        float p2 = arr[1];
-        float p3 = 0;
-
-        if (curX - 1 < 0) {
-            p0 = 2 * p1 - p2;
-        } else if (curX + 2 == arr.length) {
-            p3 = 2 * p2 - p1;
-        }
+    public static float interpolateCubic(float[] arr, float xPrim) {
+        float p0;
+        float p1;
+        float p2;
+        float p3;
+        p0 = arr[0];
+        p1 = arr[1];
+        p2 = arr[2];
+        p3 = arr[3];
 
         return (float) (p1 + 0.5 * xPrim * (p2 - p0 + xPrim * (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3 + xPrim * (3.0 * (p1 - p2) + p3 - p0))));
     }
 
     public static float interpolateCubic(short[] arr, int curX, float xPrim) {
-        float p0 = 0;
-        float p1 = arr[0];
-        float p2 = arr[1];
-        float p3 = 0;
+        float p0;
+        float p1;
+        float p2;
+        float p3;
 
-        if (curX - 1 < 0) {
+        if (curX == 0) {
+            p1 = arr[curX];
+            p2 = arr[curX + 1];
             p0 = 2 * p1 - p2;
-        } else if (curX + 2 == arr.length) {
+            p3 = arr[curX + 2];
+        } else if (curX == arr.length - 1) {
+            p0 = arr[curX - 2];
+            p1 = arr[curX - 1];
+            p2 = arr[curX];
             p3 = 2 * p2 - p1;
+        } else {
+            p0 = arr[curX - 1];
+            p1 = arr[curX];
+            p2 = arr[curX + 1];
+            if (curX + 2 > arr.length - 1) {
+                p3 = 2 * p2 - p1;
+            } else {
+                p3 = arr[curX + 2];
+            }
         }
 
         return (float) (p1 + 0.5 * xPrim * (p2 - p0 + xPrim * (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3 + xPrim * (3.0 * (p1 - p2) + p3 - p0))));
@@ -365,46 +378,63 @@ public class Gradients {
     private static float interpolateTricubic(short[][][] vol, int curX, int curY, int curZ,
                                              float xPrim, float yPrim, float zPrim) {
         float p0;
-        float p1 = interpolateBicubic(vol[curZ], curX, curY, yPrim, zPrim);
-        float p2 = interpolateBicubic(vol[curZ + 1], curX, curY, yPrim, zPrim);
+        float p1;
+        float p2;
         float p3;
-
-        if (curZ - 1 < 0) {
+        if (curZ == 0) {
+            p1 = interpolateBicubic(vol[curZ], curX, curY, yPrim, zPrim);
+            p2 = interpolateBicubic(vol[curZ + 1], curX, curY, yPrim, zPrim);
             p0 = 2 * p1 - p2;
             p3 = interpolateBicubic(vol[curZ + 2], curX, curY, yPrim, zPrim);
-        } else if (curZ + 2 == vol.length) {
-            p0 = interpolateBicubic(vol[curZ - 1], curX, curY, yPrim, zPrim);
-            p3 = 2 * p2 - p1;
+        } else if (curZ == vol.length - 1) {
+            p1 = interpolateBicubic(vol[curZ], curX, curY, yPrim, zPrim);
+            p2 = interpolateBicubic(vol[curZ - 1], curX, curY, yPrim, zPrim);
+            p0 = 2 * p2 - p1;
+            p3 = interpolateBicubic(vol[curZ - 2], curX, curY, yPrim, zPrim);
         } else {
             p0 = interpolateBicubic(vol[curZ - 1], curX, curY, yPrim, zPrim);
-            p3 = interpolateBicubic(vol[curZ + 2], curX, curY, yPrim, zPrim);
+            p1 = interpolateBicubic(vol[curZ], curX, curY, yPrim, zPrim);
+            p2 = interpolateBicubic(vol[curZ + 1], curX, curY, yPrim, zPrim);
+            if (curZ + 2 > vol.length - 1) {
+                p3 = 2 * p2 - p1;
+            } else {
+                p3 = interpolateBicubic(vol[curY + 2], curX, curY, yPrim, zPrim);
+            }
+
         }
 
-        return interpolateCubic(new float[] {p0, p1, p2, p3}, curX, xPrim);
+        return interpolateCubic(new float[]{p0, p1, p2, p3}, xPrim);
     }
 
     public static float interpolateBicubic(short[][] mat, int curX, int curY, float xPrim, float yPrim) {
-        float[] intermediate = new float[4];
 
         float p0;
-        float p1 = interpolateCubic(mat[curY], curY, yPrim);
-        float p2 = interpolateCubic(mat[curY + 1], curY, yPrim);
+        float p1;
+        float p2;
         float p3;
 
-
-        if (curY - 1 < 0) {
+        if (curY == 0) {
+            p1 = interpolateCubic(mat[curY], curX, xPrim);
+            p2 = interpolateCubic(mat[curY + 1], curX, xPrim);
             p0 = 2 * p1 - p2;
-            p3 = interpolateCubic(mat[curY + 2], curY, yPrim);
-        } else if (curY + 2 == mat[0].length) {
-            p0 = interpolateCubic(mat[curY - 1], curY, yPrim);
-            p3 = 2 * p2 - p1;
+            p3 = interpolateCubic(mat[curY + 2], curX, xPrim);
+        } else if (curY == mat.length - 1) {
+            p1 = interpolateCubic(mat[curY], curX, xPrim);
+            p2 = interpolateCubic(mat[curY - 1], curX, xPrim);
+            p0 = 2 * p1 - p2;
+            p3 = interpolateCubic(mat[curY - 2], curX, xPrim);
         } else {
-            p0 = interpolateCubic(mat[curY - 1], curY, yPrim);
-            p3 = interpolateCubic(mat[curY + 2], curY, yPrim);
+            p0 = interpolateCubic(mat[curY - 1], curX, xPrim);
+            p1 = interpolateCubic(mat[curY], curX, xPrim);
+            p2 = interpolateCubic(mat[curY + 1], curX, xPrim);
+            if (curY + 2 > mat.length - 1) {
+                p3 = 2 * p2 - p1;
+            } else {
+                p3 = interpolateCubic(mat[curY + 2], curX, xPrim);
+            }
         }
 
-
-        return interpolateCubic(new float[] {p0, p1, p2, p3}, curX, xPrim);
+        return interpolateCubic(new float[]{p0, p1, p2, p3}, yPrim);
     }
 
 }

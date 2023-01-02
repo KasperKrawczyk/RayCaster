@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -239,30 +240,27 @@ public class MainWindow extends BorderPane {
         Label labelZ = new Label("Light z:");
         TextField textFieldZ = new TextField();
         Button submitBtn = new Button("Submit");
-        submitBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                String xString = textFieldX.getText();
-                String yString = textFieldY.getText();
-                String zString = textFieldZ.getText();
-                if (StringUtil.isNotEmpty(xString)
-                        && StringUtil.isNotEmpty(yString)
-                        && StringUtil.isNotEmpty(zString)) {
-                    double newX;
-                    double newY;
-                    double newZ;
-                    try {
-                        newX = Double.parseDouble(xString);
-                        newY = -Double.parseDouble(yString);
-                        newZ = Double.parseDouble(zString);
-                    } catch (NumberFormatException nfe) {
-                        return;
-                    }
-                    Camera.moveLightTo(new Point3D(newX, newY, newZ));
-                    Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
-                            Trackball.NUM_OF_THREADS));
-                    mainView.setImage(renderedImage);
+        submitBtn.setOnAction(event -> {
+            String xString = textFieldX.getText();
+            String yString = textFieldY.getText();
+            String zString = textFieldZ.getText();
+            if (StringUtil.isNotEmpty(xString)
+                    && StringUtil.isNotEmpty(yString)
+                    && StringUtil.isNotEmpty(zString)) {
+                double newX;
+                double newY;
+                double newZ;
+                try {
+                    newX = Double.parseDouble(xString);
+                    newY = -Double.parseDouble(yString);
+                    newZ = Double.parseDouble(zString);
+                } catch (NumberFormatException nfe) {
+                    return;
                 }
+                Camera.moveLightTo(new Point3D(newX, newY, newZ));
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                        Trackball.NUM_OF_THREADS));
+                mainView.setImage(renderedImage);
             }
         });
         GridPane.setConstraints(labelX, 0, 0);
@@ -297,6 +295,7 @@ public class MainWindow extends BorderPane {
 
     private VBox buildColorMappingVBox() {
         VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
         ListView<ColorMappingListItem> listView = new ListView<>();
         CMLIGrid grid = new CMLIGrid(listView, volumeRenderer);
         vBox.getChildren().addAll(listView, grid);

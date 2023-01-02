@@ -37,10 +37,10 @@ public class CMLIGrid extends GridPane {
                 rTextField, gTextField, bTextField, ceilingTextField,
                 removeButton
         );
-        this.rTextField.setStyle("-fx-control-inner-background: rgba(190,27,77,0.5); -fx-text-fill: rgba(125,125,128,0.83);");
-        this.gTextField.setStyle("-fx-control-inner-background: rgba(94,204,58,0.5); -fx-text-fill: rgba(125,125,128,0.83);");
-        this.bTextField.setStyle("-fx-control-inner-background: rgba(24,149,226,0.5); -fx-text-fill: rgba(125,125,128,0.83);");
-        this.ceilingTextField.setStyle("-fx-control-inner-background: rgba(125,125,128,0.5); -fx-text-fill: rgba(125,125,128,0.83);");
+        this.rTextField.setStyle("-fx-control-inner-background: rgba(190,27,77,0.5); -fx-text-fill: rgb(255,255,255);");
+        this.gTextField.setStyle("-fx-control-inner-background: rgba(94,204,58,0.5); -fx-text-fill: rgb(255,255,255);");
+        this.bTextField.setStyle("-fx-control-inner-background: rgba(24,149,226,0.5); -fx-text-fill: rgb(255,255,255);");
+        this.ceilingTextField.setStyle("-fx-control-inner-background: rgba(125,125,128,0.5); -fx-text-fill: rgb(255,255,255);");
         GridPane.setConstraints(rTextField, 0, 0);
         GridPane.setConstraints(gTextField, 1, 0);
         GridPane.setConstraints(bTextField, 0, 1);

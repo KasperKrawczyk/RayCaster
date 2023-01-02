@@ -1,3 +1,5 @@
+import mathutil.Util;
+
 public class StringUtil
 {
     private StringUtil() {

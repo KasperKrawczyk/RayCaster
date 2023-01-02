@@ -1,7 +1,10 @@
+package model;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import mathutil.Gradients;
 
 import java.io.*;
 
@@ -49,8 +52,8 @@ public class DataSet {
         this.size = size;
         this.height = height;
         this.width = width;
-        bytes = new short[this.getHeight()][this.getSize()][this.getWidth()]; //allocate the memory - note this is fixed for this data set
-        grey = new float[this.getHeight()][this.getSize()][this.getWidth()];
+        bytes = new short[this.getHeight()][256][this.getWidth()]; //allocate the memory - note this is fixed for this data set
+        grey = new float[this.getHeight()][256][this.getWidth()];
         try {
             this.parseBytes();
 
@@ -105,7 +108,7 @@ public class DataSet {
 
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
-                val = this.getGrey()[sliceNum][y][x];
+                val = getGrey()[sliceNum][y][x];
                 Color color = Color.color(val, val, val);
 
                 pixelWriter.setColor(x, y, color);
@@ -124,6 +127,7 @@ public class DataSet {
         short read; //value read in
         int b1;
         int b2;
+        short[][][] temp = new short[this.getHeight()][this.getSize()][this.getWidth()]; //allocate the memory - note this is fixed for this data set
 
         //loop through the data reading it in
         for (int k = 0; k < this.getSize(); k++) {
@@ -136,10 +140,11 @@ public class DataSet {
                     //read = Short.reverseBytes((short) in.readUnsignedByte());
                     if (read < this.getMinVolValue()) this.setMinVolValue(read); //update the minimum
                     if (read > this.getMaxVolValue()) this.setMaxVolValue(read); //update the maximum
-                    getBytes()[j][k][i] = read;
+                    temp[j][k][i] = read;
                 }
             }
         }
+        bytes = Gradients.rescaleTricubic(temp, 256, 226, 256);
     }
 
 

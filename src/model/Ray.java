@@ -1,3 +1,5 @@
+package model;
+
 public class Ray extends Vector3D {
 
     private final Vector3D direction;
@@ -9,7 +11,7 @@ public class Ray extends Vector3D {
 
     @Override
     public String toString() {
-        return "Ray{" +
+        return "model.Ray{" +
                 "origin=" + super.toString() +
                 "direction=" + direction +
                 '}';

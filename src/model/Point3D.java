@@ -1,3 +1,5 @@
+package model;
+
 import java.util.Objects;
 
 public class Point3D {
@@ -27,7 +29,7 @@ public class Point3D {
 
     @Override
     public String toString() {
-        return "Point3D{" +
+        return "model.Point3D{" +
                 "x=" + x +
                 ", y=" + y +
                 ", z=" + z +

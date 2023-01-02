@@ -1,6 +1,11 @@
+import component.Camera;
+import component.VolumeRenderer;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import model.DataSet;
+import model.Quaternion;
+import model.Vector3D;
 
 public class Trackball {
     public static final double MIN_DIST = 0.001;
@@ -8,13 +13,15 @@ public class Trackball {
     public static final int NUM_OF_THREADS = 60;
 
     private final ImageView mainView;
+    private final VolumeRenderer volumeRenderer;
 
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public Trackball(ImageView mainView) {
+    public Trackball(ImageView mainView, VolumeRenderer volumeRenderer) {
         this.mainView = mainView;
+        this.volumeRenderer = volumeRenderer;
 
         this.mainView.setOnMousePressed(event -> {
             this.start = new Point2D(event.getX(), event.getY());
@@ -35,7 +42,7 @@ public class Trackball {
                 this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
                 this.start = new Point2D(event.getX(), event.getY());
                 Camera.moveViewPortByRotator(this.lastQuat);
-                Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
                         DataSet.getBytes(),
                         NUM_OF_THREADS)
                 );
@@ -56,7 +63,7 @@ public class Trackball {
             Camera.moveViewPortByRotator(this.lastQuat);
 
 
-            Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
                     DataSet.getBytes(),
                     NUM_OF_THREADS)
             );

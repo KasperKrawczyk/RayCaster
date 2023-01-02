@@ -10,6 +10,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import model.AABB;
+import model.Point3D;
+import model.Ray;
+import model.Vector3D;
 
 public class Test {
     private static ImageView view;
@@ -123,11 +127,11 @@ public class Test {
             public void changed(ObservableValue<? extends Number >
                                         observable, Number oldValue, Number newValue) {
 //                World.setViewPlaneAngle(-newValue.doubleValue());
-//                Image newImage = (VolumeRenderer.volumeRayCast(DataSet.getBytes()));
-                //Image newImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(), 80));
+//                Image newImage = (component.VolumeRenderer.volumeRayCast(model.DataSet.getBytes()));
+                //Image newImage = (component.VolumeRenderer.volumeRayCastParallelized(model.DataSet.getBytes(), 80));
 
 
-                //borderPane.setCenter(new ImageView(Util.rescaleBilinearColour(512, 512, newImage)));
+                //borderPane.setCenter(new ImageView(mathutil.Util.rescaleBilinearColour(512, 512, newImage)));
                 //borderPane.setCenter(new ImageView(newImage));
             }
         });
@@ -140,7 +144,7 @@ public class Test {
 
         //Build and display the new window
         Stage newWindow = new Stage();
-        newWindow.setTitle("Ray Caster Test");
+        newWindow.setTitle("model.Ray Caster Test");
         newWindow.setScene(testScene);
 
         // Set position of second window, related to primary window.

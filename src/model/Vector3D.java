@@ -1,3 +1,7 @@
+package model;
+
+import component.Camera;
+
 public class Vector3D extends Point3D {
 
     public static final Vector3D IDENTITY = new Vector3D(1, 1, 1);
@@ -16,14 +20,14 @@ public class Vector3D extends Point3D {
 
     @Override
     public String toString() {
-        return "Vector3D = " +
+        return "model.Vector3D = " +
                 '<' + this.x + ", " +
                 this.y + ", " +
                 this.z + '>';
     }
 
     public String toIndexString() {
-        return "Vector3D = " +
+        return "model.Vector3D = " +
                 '[' + (int) this.x + ']' +
                 '[' + (int) this.y + ']' +
                 '[' + (int) this.z + ']';

@@ -1,23 +1,23 @@
 //public class WorldOld {
 //
-//    public static final Vector3D ORIGIN = new Vector3D(0, 0, 0);
-//    public static final Vector3D DATASET_CENTRE = new Vector3D(
+//    public static final model.Vector3D ORIGIN = new model.Vector3D(0, 0, 0);
+//    public static final model.Vector3D DATASET_CENTRE = new model.Vector3D(
 //            256 / 2.0,
 //            113 / 2.0,
 //            256 / 2.0);
 //    public static final int VIEW_PLANE_HEIGHT = 300;
 //    public static final int VIEW_PLANE_WIDTH = 400;
 //    public static final int viewPlaneEyeDistance = 50;
-//    public static Vector3D circleCentre;
-//    public static Vector3D viewPlaneCorner0; //start of the matrix, floor level
-//    public static Vector3D viewPlaneCornerFloor1; //end of the matrix, floor level
-//    public static Vector3D viewPlaneCornerUp0; //start of the matrix
-//    public static Vector3D viewPlaneCornerUp1; //end of the matrix
-//    public static Vector3D viewPlaneCentre;
-//    public static Vector3D eye; // immediately before viewPlaneCentre along the circleCentre <> viewPlaneCentre axis
-//    public static Vector3D viewPlaneCentreFloor;
-//    public static Vector3D viewPlaneNormal;
-//    public static Vector3D light;
+//    public static model.Vector3D circleCentre;
+//    public static model.Vector3D viewPlaneCorner0; //start of the matrix, floor level
+//    public static model.Vector3D viewPlaneCornerFloor1; //end of the matrix, floor level
+//    public static model.Vector3D viewPlaneCornerUp0; //start of the matrix
+//    public static model.Vector3D viewPlaneCornerUp1; //end of the matrix
+//    public static model.Vector3D viewPlaneCentre;
+//    public static model.Vector3D eye; // immediately before viewPlaneCentre along the circleCentre <> viewPlaneCentre axis
+//    public static model.Vector3D viewPlaneCentreFloor;
+//    public static model.Vector3D viewPlaneNormal;
+//    public static model.Vector3D light;
 //    public static double circleRadius;
 //    public static double viewPlaneAngle;
 //
@@ -34,35 +34,35 @@
 //    }
 //
 //    private static void initCircleCentre() {
-//        double x = Main.getDatasetWidth() / 2.0;
-//        double z = Main.getDatasetSize() / 2.0; //or dataset width
-//        double y = Main.getDatasetHeight() / 2.0;
-//        circleCentre = new Vector3D(x, 0, z);
+//        double x = component.Main.getDatasetWidth() / 2.0;
+//        double z = component.Main.getDatasetSize() / 2.0; //or dataset width
+//        double y = component.Main.getDatasetHeight() / 2.0;
+//        circleCentre = new model.Vector3D(x, 0, z);
 //    }
 //
 //    private static void initViewPlaneCorner() {
-//        viewPlaneCorner0 = new Vector3D(viewPlaneCentreFloor);
+//        viewPlaneCorner0 = new model.Vector3D(viewPlaneCentreFloor);
 //        viewPlaneCorner0.setX(VIEW_PLANE_WIDTH / 2.0);
 //    }
 //
 //    private static void initViewPlaneCentre() {
 //        //along the x axis, the view plane will be centred on the centre of the dataset
-//        double x = Main.getDatasetWidth() / 2.0;
+//        double x = component.Main.getDatasetWidth() / 2.0;
 //        double y = VIEW_PLANE_HEIGHT / 2.0;
-//        viewPlaneCentre = new Vector3D(x, y, 0);
+//        viewPlaneCentre = new model.Vector3D(x, y, 0);
 //    }
 //
 //    private static void initEye() {
-//        eye = new Vector3D(viewPlaneCentre);
+//        eye = new model.Vector3D(viewPlaneCentre);
 //        eye.setZ(eye.getZ() - viewPlaneEyeDistance);
 //    }
 //
 //    private static void initLight() {
-//        light = new Vector3D(65.5, 40, -200);
+//        light = new model.Vector3D(65.5, 40, -200);
 //    }
 //
 //    private static void initViewPlaneCentreFloor() {
-//        viewPlaneCentreFloor = new Vector3D(viewPlaneCentre);
+//        viewPlaneCentreFloor = new model.Vector3D(viewPlaneCentre);
 //        viewPlaneCentreFloor.setY(0);
 //    }
 //
@@ -74,7 +74,7 @@
 //        viewPlaneNormal = circleCentre.sub(viewPlaneCentreFloor).normalize();
 //    }
 //
-//    public static void moveLightByVector(Vector3D moveBy) {
+//    public static void moveLightByVector(model.Vector3D moveBy) {
 //        light.add(moveBy);
 //    }
 //
@@ -88,7 +88,7 @@
 //     */
 //    public static void moveViewPlaneByAngleDegrees(double degrees) {
 //        //first, the centre floor point of the view plane is calculated
-//        viewPlaneCentreFloor = Quaternion.newRotator(degrees, Axis.Y.getVector()).rotate(viewPlaneCentreFloor, circleCentre);
+//        viewPlaneCentreFloor = model.Quaternion.newRotator(degrees, model.Axis.Y.getVector()).rotate(viewPlaneCentreFloor, circleCentre);
 //
 //        System.out.println("circleCentre = " + circleCentre);
 //
@@ -97,7 +97,7 @@
 //
 //        updateViewPlaneCorners();
 //
-//        viewPlaneCentre = viewPlaneCentreFloor.add(new Vector3D(0, VIEW_PLANE_HEIGHT / 2.0, 0));
+//        viewPlaneCentre = viewPlaneCentreFloor.add(new model.Vector3D(0, VIEW_PLANE_HEIGHT / 2.0, 0));
 //        updateEye();
 //
 ////        System.out.println("circleCentre " + circleCentre);
@@ -116,9 +116,9 @@
 //     * the <code>viewPlaneCentre</code>,
 //     * the <code>viewPlaneCentreFloor</code>,
 //     * and the <code>viewPlaneNormal</code>.
-//     * @param rotator the Quaternion to rotate <code>viewPlaneCentreFloor</code> by
+//     * @param rotator the model.Quaternion to rotate <code>viewPlaneCentreFloor</code> by
 //     */
-//    public static void moveViewPlaneByRotator(Quaternion rotator) {
+//    public static void moveViewPlaneByRotator(model.Quaternion rotator) {
 //        //first, the centre floor point of the view plane is calculated
 //        viewPlaneCentreFloor = rotator.rotate(WorldOld.getViewPlaneNormal(), circleCentre);
 //
@@ -127,7 +127,7 @@
 //
 //        updateViewPlaneCorners(); // FIXME: 05/06/2022 we need the upper corners as well
 //
-//        viewPlaneCentre = viewPlaneCentreFloor.add(new Vector3D(0, VIEW_PLANE_HEIGHT / 2.0, 0));
+//        viewPlaneCentre = viewPlaneCentreFloor.add(new model.Vector3D(0, VIEW_PLANE_HEIGHT / 2.0, 0));
 //        updateEye();
 //
 ////        System.out.println("circleCentre " + circleCentre);
@@ -145,8 +145,8 @@
 //     * @return a vector indicating the direction and magnitude of transition
 //     * from a pixel to the next.
 //     */
-//    public static Vector3D getStep() {
-//        return new Vector3D(
+//    public static model.Vector3D getStep() {
+//        return new model.Vector3D(
 //                (viewPlaneCornerFloor1.getX() - viewPlaneCorner0.getX()) / VIEW_PLANE_WIDTH,
 //                0,
 //                (viewPlaneCornerFloor1.getZ() - viewPlaneCorner0.getZ()) / VIEW_PLANE_WIDTH
@@ -166,7 +166,7 @@
 //
 //        double slopeHalfside = -1 / slopeRadius;
 //
-//        Vector3D b = new Vector3D(
+//        model.Vector3D b = new model.Vector3D(
 //                slopeHalfside / (Math.sqrt(1 + Math.pow(slopeHalfside, 2))),
 //                0,
 //                1 / (Math.sqrt(1 + Math.pow(slopeHalfside, 2)))
@@ -178,32 +178,32 @@
 //
 //
 //    private static void updateEye() {
-//        Vector3D v = circleCentre.sub(viewPlaneCentreFloor).flip().normalize();
+//        model.Vector3D v = circleCentre.sub(viewPlaneCentreFloor).flip().normalize();
 //        v = v.mult(viewPlaneEyeDistance);
-//        eye = new Vector3D(viewPlaneCentre).add(v);
+//        eye = new model.Vector3D(viewPlaneCentre).add(v);
 //    }
 //
-//    public static Vector3D getCircleCentre() {
+//    public static model.Vector3D getCircleCentre() {
 //        return circleCentre;
 //    }
 //
-//    public static Vector3D getViewPlaneCorner0() {
+//    public static model.Vector3D getViewPlaneCorner0() {
 //        return viewPlaneCorner0;
 //    }
 //
-//    public static Vector3D getViewPlaneCentre() {
+//    public static model.Vector3D getViewPlaneCentre() {
 //        return viewPlaneCentre;
 //    }
 //
-//    public static Vector3D getViewPlaneCentreFloor() {
+//    public static model.Vector3D getViewPlaneCentreFloor() {
 //        return viewPlaneCentreFloor;
 //    }
 //
-//    public static Vector3D getViewPlaneNormal() {
+//    public static model.Vector3D getViewPlaneNormal() {
 //        return viewPlaneNormal;
 //    }
 //
-//    public static Vector3D getLight() {
+//    public static model.Vector3D getLight() {
 //        return light;
 //    }
 //
@@ -219,11 +219,11 @@
 //        WorldOld.viewPlaneAngle = viewPlaneAngle;
 //    }
 //
-//    public static Vector3D getViewPlaneCornerFloor1() {
+//    public static model.Vector3D getViewPlaneCornerFloor1() {
 //        return viewPlaneCornerFloor1;
 //    }
 //
-//    public static Vector3D getEye() {
+//    public static model.Vector3D getEye() {
 //        return eye;
 //    }
 //}

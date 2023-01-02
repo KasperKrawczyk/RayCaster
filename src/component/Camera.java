@@ -1,3 +1,10 @@
+package component;
+
+import model.Axis;
+import model.Point3D;
+import model.Quaternion;
+import model.Vector3D;
+
 public class Camera {
 
     public static final Vector3D ORIGIN = new Vector3D(0, 0, 0);
@@ -80,7 +87,7 @@ public class Camera {
      * the <code>viewPortCentre</code>,
      * the <code>viewPortCentreFloor</code>,
      * and the <code>viewPortNormal</code>.
-     * @param rotator the Quaternion to rotate <code>viewPortCentreFloor</code> by
+     * @param rotator the model.Quaternion to rotate <code>viewPortCentreFloor</code> by
      */
     public static void moveViewPortByRotator(Quaternion rotator) {
         //first, the centre point of the view plane is calculated

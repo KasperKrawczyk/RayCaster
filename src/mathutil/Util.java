@@ -1,7 +1,12 @@
+package mathutil;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import model.Algo;
+import model.DataSet;
+import model.Vector3D;
 
 import java.io.*;
 import java.util.HashMap;
@@ -219,10 +224,16 @@ public class Util {
         return (int) ((max - min) * val);
     }
 
+    public static double normalize(double val, double min, double max) {
+        return ((max - min) * val);
+    }
+
     private static Image volumeRender(short[][][] vol, Vector3D light, Vector3D eye) {
         int height = vol[0].length;
         int depth = vol.length;
         int width = vol[0][0].length;
+        System.out.println("height = " + height);
+        System.out.println("width = " + width);
         WritableImage renderedImage = new WritableImage(width, height);
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         for (int y = 0; y < height; y++) {

@@ -1,4 +1,9 @@
+package mathutil;
+
 import javafx.scene.paint.Color;
+import mathutil.Util;
+import model.DataSet;
+import model.Vector3D;
 
 public class Reflections {
 
@@ -56,7 +61,7 @@ public class Reflections {
 //        red = intersectionPointColor.getRed() * cosTheta;
 //        green = intersectionPointColor.getGreen() * cosTheta;
 //        blue = intersectionPointColor.getBlue() * cosTheta;
-        //opacity = DataSet.getOpacityLUT()[(int) gradient.magnitude()];
+        //opacity = model.DataSet.getOpacityLUT()[(int) gradient.magnitude()];
 
         return new Color(red, green, blue, intersectionPointColor.getOpacity());
 

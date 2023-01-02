@@ -1,17 +1,29 @@
+import component.Camera;
+import component.Main;
+import component.VolumeRenderer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import mathutil.Util;
+import model.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +43,6 @@ public class MainWindow extends BorderPane {
     public static final int CT_HEAD_SIDE = 256;
 
 
-
     public static final int MIN_SIZE_SLIDER_VAL = 32;
     public static final int MAX_SIZE_SLIDER_VAL = 512;
     public static final int TOUCH_PANE_SIDE = 256;
@@ -39,6 +50,7 @@ public class MainWindow extends BorderPane {
 
     private final HBox topHBox;
     private final VBox rightVBox;
+    private final VBox leftVBox;
     private final Slider sizeSlider;
     private final Slider angleSlider;
     private final ToggleButton renderButton;
@@ -46,7 +58,9 @@ public class MainWindow extends BorderPane {
     private int currentSize;
     private Algo currentAlgo;
     private DataSet dataSet;
+    private VolumeRenderer volumeRenderer;
     private Image mainImage;
+    private ListView<ColorMappingListItem> colorMappingList;
     private ImageView mainView;
     private TrackballPane trackballPane;
     private Trackball trackball;
@@ -56,12 +70,12 @@ public class MainWindow extends BorderPane {
     private int datasetWidth;
 
 
-
     /**
      * Creates the main window of the application
+     *
      * @param stage the stage on which to build the window
      */
-    public MainWindow(Stage stage){
+    public MainWindow(Stage stage) {
         stage.setTitle(MAIN_TITLE);
         this.setMinHeight(MAIN_SIDE);
         this.setMinWidth(MAIN_SIDE);
@@ -77,37 +91,42 @@ public class MainWindow extends BorderPane {
                 datasetWidth);
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;
-
+        this.volumeRenderer = new VolumeRenderer();
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);
         this.angleSlider = new Slider(0.0, 90.0, 0.0);
         this.renderButton = new RadioButton(RENDER_BTN_MSG);
-        this.trackballPane = new TrackballPane(this.mainView);
+        this.trackballPane = new TrackballPane(mainView, volumeRenderer);
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
-        this.rightVBox.getChildren().addAll(buildLightTouchpane(), this.trackballPane, buildLightInputsGrid(), buildCameraInputs());
+        this.leftVBox = new VBox();
+        this.rightVBox.getChildren().addAll(
+                buildLightTouchpane(),
+                trackballPane,
+                buildLightInputsGrid(),
+                buildCameraInputs());
+        this.leftVBox.getChildren().addAll(
+                buildColorMappingVBox());
         Camera.initCamera();
-        this.trackball = new Trackball(mainView);
+        this.trackball = new Trackball(mainView, volumeRenderer);
 
         Util.writeHistogram(DataSet.getBytes());
 
-//        Image initRender = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+//        Image initRender = (component.VolumeRenderer.volumeRayCastParallelized(model.DataSet.getBytes(),
 //                80));
 //        mainView.setImage(initRender);
 
 
-
-
         this.renderButton.setOnAction(event -> {
-            Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
                     Trackball.NUM_OF_THREADS));
             mainView.setImage(renderedImage);
         });
 
         this.sizeSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number >
+            public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
 
                 currentSize = newValue.intValue();
@@ -127,20 +146,19 @@ public class MainWindow extends BorderPane {
                 System.out.println(newValue.doubleValue());
                 Camera.moveViewPortByAngleDegrees(newValue.doubleValue());
 
-                Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }
         });
 
 
-
-
         this.setTop(topHBox);
         this.setRight(rightVBox);
         this.setCenter(mainView);
+        this.setLeft(leftVBox);
 
-        Scene scene = new Scene(this, MAX_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL +  topHBox.getMaxHeight());
+        Scene scene = new Scene(this, MAX_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL + topHBox.getMaxHeight());
         stage.setScene(scene);
         stage.show();
 
@@ -149,6 +167,7 @@ public class MainWindow extends BorderPane {
 
     /**
      * Builds the thumbnail window at the given x and y coordinates
+     *
      * @return StackPane object
      */
     public StackPane buildLightTouchpane() {
@@ -161,8 +180,8 @@ public class MainWindow extends BorderPane {
         touchStackPane.getChildren().add(touchView);
 
         PixelWriter pixelWriter = headImage.getPixelWriter();
-        for(int y = 0; y < TOUCH_PANE_SIDE; y++){
-            for(int x = 0; x < TOUCH_PANE_SIDE; x++){
+        for (int y = 0; y < TOUCH_PANE_SIDE; y++) {
+            for (int x = 0; x < TOUCH_PANE_SIDE; x++) {
                 pixelWriter.setColor(x, y, Color.color(0, 0.2, 1));
             }
         }
@@ -240,7 +259,7 @@ public class MainWindow extends BorderPane {
                         return;
                     }
                     Camera.moveLightTo(new Point3D(newX, newY, newZ));
-                    Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                    Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
                             Trackball.NUM_OF_THREADS));
                     mainView.setImage(renderedImage);
                 }
@@ -259,14 +278,14 @@ public class MainWindow extends BorderPane {
 
     public VBox buildCameraInputs() {
         Slider slider = new Slider(-800, 400, 0);
-        Label sliderLabel = new Label("Camera distance");
+        Label sliderLabel = new Label("component.Camera distance");
 
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
                 Camera.updateViewPort(newValue.intValue());
                 System.out.println(newValue);
-                Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }
@@ -275,4 +294,79 @@ public class MainWindow extends BorderPane {
         VBox vBox = new VBox(sliderLabel, slider);
         return vBox;
     }
+
+    private VBox buildColorMappingVBox() {
+        VBox vBox = new VBox();
+        ListView<ColorMappingListItem> listView = new ListView<>();
+        CMLIGrid grid = new CMLIGrid(listView, volumeRenderer);
+        vBox.getChildren().addAll(listView, grid);
+        listView.setEditable(true);
+        listView.setMaxWidth(330);
+        listView.setItems(FXCollections.observableArrayList(
+                new ColorMappingListItem(Color.WHITE, (short) -99),
+                new ColorMappingListItem(Color.color(1, 0.79, 0.6), (short) 299),
+                new ColorMappingListItem(Color.color(0.8902, 0.8549, 0.7882), (short) 1900),
+                new ColorMappingListItem(Color.WHITE, Short.MAX_VALUE)
+                ));
+        listView.setCellFactory(lv -> new ListCell<ColorMappingListItem>() {
+            private final TextField textField = new TextField();
+
+            {
+                textField.setOnAction(e -> {
+                    commitEdit(getItem());
+                });
+                textField.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) {
+                        cancelEdit();
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(ColorMappingListItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else if (isEditing()) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item.getShortDescription());
+                    setGraphic(new Rectangle(20, 20, item.getColor()));
+                }
+            }
+
+            @Override
+            public void startEdit() {
+                super.startEdit();
+                setText(null);
+                setGraphic(null);
+            }
+
+            @Override
+            public void cancelEdit() {
+                super.cancelEdit();
+                setText(getItem().getShortDescription());
+                setGraphic(new Rectangle(20, 20, getItem().getColor()));
+            }
+
+            @Override
+            public void commitEdit(ColorMappingListItem item) {
+                super.commitEdit(item);
+                setText(item.getShortDescription());
+                setGraphic(new Rectangle(20, 20, item.getColor()));
+            }
+        });
+
+        // for debugging:
+        listView.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                listView.getItems().forEach(p -> System.out.println(p.getShortDescription()));
+            }
+        });
+
+        return vBox;
+    }
+
 }

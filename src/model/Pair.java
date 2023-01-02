@@ -1,3 +1,5 @@
+package model;
+
 public class Pair<T, U> {
     private Object o1;
     private Object o2;

@@ -1,3 +1,5 @@
+package model;
+
 public class Quaternion {
 
     public static final Quaternion ZERO = makeExactQuaternionRadians(0, new Vector3D(0, 0, 0));
@@ -18,7 +20,7 @@ public class Quaternion {
     /**
      * @param radians in radians
      * @param vector vector to set for the imaginary part of the new quaternion
-     * @return a new Quaternion object with the exact parameters
+     * @return a new model.Quaternion object with the exact parameters
      */
     public static Quaternion makeExactQuaternionRadians(double radians, Vector3D vector) {
         Quaternion q = new Quaternion();
@@ -30,7 +32,7 @@ public class Quaternion {
     /**
      * @param degrees
      * @param vector  vector to set for the imaginary part of the new quaternion
-     * @return a new Quaternion object with the exact parameters
+     * @return a new model.Quaternion object with the exact parameters
      */
     public static Quaternion makeExactQuaternionDegrees(double degrees, Vector3D vector) {
         Quaternion q = new Quaternion();
@@ -58,7 +60,7 @@ public class Quaternion {
 
 //        double resDot = startNorm.dotProd(endNorm);
 //        if (resDot >= (1 - 1e-16)) {
-//            return Quaternion.ZERO;
+//            return model.Quaternion.ZERO;
 //        }
         Quaternion q = makeExactQuaternionRadians(
                 1 + startNorm.dotProd(endNorm),
@@ -90,17 +92,17 @@ public class Quaternion {
 
     @Override
     public String toString() {
-        return "Quaternion{" +
+        return "model.Quaternion{" +
                 "w=" + w +
                 ", vector=" + vector +
                 '}';
     }
 
     /**
-     * Quaternion multiplication by another quaternion combines their angles of rotation
+     * model.Quaternion multiplication by another quaternion combines their angles of rotation
      *
      * @param other the other quaternion to multiply this quaternion by
-     * @return a new Quaternion, the product of the quaternion-by-quaternion multiplication
+     * @return a new model.Quaternion, the product of the quaternion-by-quaternion multiplication
      */
     public Quaternion mult(Quaternion other) {
         Vector3D thisVector = this.getVector();
@@ -145,7 +147,7 @@ public class Quaternion {
     }
 
     /**
-     * Rotates the toRotate Vector3D around the give localCentre as the origin
+     * Rotates the toRotate model.Vector3D around the give localCentre as the origin
      * around this quaternion
      *
      * @param toRotate    the vector to rotate
@@ -170,7 +172,7 @@ public class Quaternion {
     }
 
     /**
-     * Rotates the toRotate Vector3D around the give localCentre as the origin
+     * Rotates the toRotate model.Vector3D around the give localCentre as the origin
      * around this quaternion
      *
      * @param in          the vector to rotate

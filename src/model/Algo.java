@@ -1,3 +1,5 @@
+package model;
+
 /**
  * This class represents the available rescaling algorithms
  *

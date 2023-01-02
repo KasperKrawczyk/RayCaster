@@ -1,16 +1,30 @@
+package component;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import mathutil.Gradients;
+import mathutil.Reflections;
+import model.*;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
 public class VolumeRenderer {
 
+    private final NavigableMap<Short, Color> huToColorMap = new TreeMap<>();
+
+    public VolumeRenderer() {
+        populateMapDefault();
+    }
+
     public static final String NUM_OF_THREADS_ERR_MSG = "The number of threads should divide the image width with no remainder";
 
-    public static ArrayList<Voxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
+    public ArrayList<Voxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
         ArrayList<Voxel> list = new ArrayList<>();
         int depth = vol.length;
         int height = vol[0].length;
@@ -58,7 +72,7 @@ public class VolumeRenderer {
         return list;
     }
 
-    public static Color compositeSamples(ArrayList<Voxel> list) {
+    public Color compositeSamples(ArrayList<Voxel> list) {
         double r = 0;
         double g = 0;
         double b = 0;
@@ -71,31 +85,37 @@ public class VolumeRenderer {
 
         for (Voxel sample : list) {
             short sampleValue = sample.getMaterialValue();
-            //opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
 
-
-
-            if (sampleValue >= -100 && sampleValue < 300) {
-                r = 1.0;
-                g = 0.79;
-                b = 0.6;
-                opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
-            } else if (sampleValue >= 300 && sampleValue <= 1900) {
-                r = 1.0;
-                g = 1.0;
-                b = 1.0;
-
-                // nicer bone?
-//                r = 0.8902;
-//                g = 0.8549;
-//                b = 0.7882;
+            Color color = huToColorMap.ceilingEntry(sampleValue).getValue();
+            r = color.getRed();
+            g = color.getGreen();
+            b = color.getBlue();
+            if (!color.equals(Color.WHITE)) {
                 opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
             } else {
-                r = 1.0;
-                g = 1.0;
-                b = 1.0;
-                opacity = 0.0;
+                opacity = 0;
             }
+//            if (sampleValue >= -100 && sampleValue < 300) {
+//                r = 1.0;
+//                g = 0.79;
+//                b = 0.6;
+//                opacity = model.DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
+//            } else if (sampleValue >= 300 && sampleValue <= 1900) {
+//                r = 1.0;
+//                g = 1.0;
+//                b = 1.0;
+//
+//                // nicer bone?
+////                r = 0.8902;
+////                g = 0.8549;
+////                b = 0.7882;
+//                opacity = model.DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
+//            } else {
+//                r = 1.0;
+//                g = 1.0;
+//                b = 1.0;
+//                opacity = 0.0;
+//            }
 
             Color shadedSample = Reflections.applyLambertianReflection(
                     Camera.getLight(),
@@ -124,15 +144,15 @@ public class VolumeRenderer {
     }
 
 
-    protected static Color sampleCompositeShade(Vector3D intersectionVector0, Vector3D intersectionVector1,
-                                                short[][][] vol) {
+    public Color sampleCompositeShade(Vector3D intersectionVector0, Vector3D intersectionVector1,
+                                      short[][][] vol) {
         ArrayList<Voxel> list = collectSamples(intersectionVector0, intersectionVector1, vol);
         return compositeSamples(list);
 
 
     }
 
-    public static Image volumeRayCastParallelized(short[][][] vol, int numOfThreads) {
+    public Image volumeRayCastParallelized(short[][][] vol, int numOfThreads) {
         Vector3D aabbOffset = new Vector3D(0, 0, 0);
 
 
@@ -140,11 +160,11 @@ public class VolumeRenderer {
         Color[][] colorMat = new Color[Camera.VIEW_PLANE_HEIGHT][Camera.VIEW_PLANE_WIDTH];
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         AABB aabb = new AABB(
-                new Vector3D(255, Main.getDatasetSize() - 1, 255).add(aabbOffset),
+                new Vector3D(255, 226, 255).add(aabbOffset),
                 new Vector3D(0, 0, 0).add(aabbOffset)
         );
 
-        runRotatedRayCasterTasks(numOfThreads, colorMat, aabb, aabbOffset, vol);
+        runRotatedRayCasterTasks(numOfThreads, colorMat, aabb, vol);
         matToImg(colorMat, pixelWriter);
 
         return renderedImage;
@@ -152,15 +172,15 @@ public class VolumeRenderer {
 
 //    public static Image volumeRayCastParallelized(short[][][] vol, int numOfThreads) {
 //        WorldOld.initWorld();
-//        Vector3D aabbOffset = new Vector3D(0, 0, 0);
+//        model.Vector3D aabbOffset = new model.Vector3D(0, 0, 0);
 //
 //
 //        WritableImage renderedImage = new WritableImage(WorldOld.VIEW_PLANE_WIDTH, WorldOld.VIEW_PLANE_HEIGHT);
 //        Color[][] colorMat = new Color[WorldOld.VIEW_PLANE_HEIGHT][WorldOld.VIEW_PLANE_WIDTH];
 //        PixelWriter pixelWriter = renderedImage.getPixelWriter();
-//        AABB aabb = new AABB(
-//                new Vector3D(255, 112, 255).add(aabbOffset),
-//                new Vector3D(0, 0, 0).add(aabbOffset)
+//        model.AABB aabb = new model.AABB(
+//                new model.Vector3D(255, 112, 255).add(aabbOffset),
+//                new model.Vector3D(0, 0, 0).add(aabbOffset)
 //        );
 //
 //        WorldOld.moveViewPlaneByAngleDegrees(WorldOld.getViewPlaneAngle());
@@ -170,36 +190,6 @@ public class VolumeRenderer {
 //        return renderedImage;
 //    }
 
-
-    /**
-     * Translates the entering and exit intersection points from the world coordinates
-     * to 3D matrix coordinates.
-     *
-     * @param intersections the two real-world coordinate intersections,
-     *                      [0] is the entry intersection,
-     *                      [1] is the leave intersection
-     * @return the 3D matrix coordinates of the volume for the entry and the leave intersection
-     */
-    protected static Vector3D[] translateToVolumeCoordinates(Vector3D[] intersections, Vector3D offset) {
-        if (intersections == null) {
-            return null;
-        }
-        Vector3D[] volumeMatrixIntersections = new Vector3D[2];
-        volumeMatrixIntersections[0] = new Vector3D(
-                intersections[0].getZ(),
-                Main.getDatasetSize() - intersections[0].getY(),
-                intersections[0].getX()
-        );
-
-        volumeMatrixIntersections[1] = new Vector3D(
-                intersections[1].getZ(),
-                Main.getDatasetSize() - intersections[1].getY(),
-                intersections[1].getX()
-        );
-
-        return volumeMatrixIntersections;
-
-    }
 
     private static void matToImg(Color[][] colorMat, PixelWriter pixelWriter) {
         for (int y = 0; y < Camera.VIEW_PLANE_HEIGHT; y++) {
@@ -224,14 +214,14 @@ public class VolumeRenderer {
         return indices;
     }
 
-//    private static void runRayCasterTasks(int numOfThreads, Color[][] colorMat, AABB aabb,
-//                                          Vector3D aabbOffset, short[][][] vol) {
+//    private static void runRayCasterTasks(int numOfThreads, Color[][] colorMat, model.AABB aabb,
+//                                          model.Vector3D aabbOffset, short[][][] vol) {
 //        if (!isCorrectNumThreads(numOfThreads)) {
 //            throw new IllegalArgumentException(NUM_OF_THREADS_ERR_MSG);
 //        }
 //        Thread[] taskThreads = new Thread[numOfThreads];
 //        CountDownLatch latch = new CountDownLatch(numOfThreads);
-//        Vector3D step = WorldOld.getStep();
+//        model.Vector3D step = WorldOld.getStep();
 //        int sectionWidth = WorldOld.VIEW_PLANE_WIDTH / numOfThreads;
 //        int[][] boundingIndices = getBoundingIndices(sectionWidth);
 //        int startIndex;
@@ -239,7 +229,7 @@ public class VolumeRenderer {
 //        for (int numOfSection = 0; numOfSection < numOfThreads; numOfSection++) {
 //            startIndex = boundingIndices[numOfSection][0];
 //            endIndex = boundingIndices[numOfSection][1];
-//            RayCasterTask task = new RayCasterTask(
+//            component.RayCasterTask task = new component.RayCasterTask(
 //                    colorMat, aabb, step, aabbOffset, latch, vol, startIndex, endIndex
 //            );
 //            taskThreads[numOfSection] = new Thread(task);
@@ -254,8 +244,7 @@ public class VolumeRenderer {
 //    }
 
 
-    private static void runRotatedRayCasterTasks(int numOfThreads, Color[][] colorMat, AABB aabb,
-                                                Vector3D aabbOffset, short[][][] vol) {
+    private void runRotatedRayCasterTasks(int numOfThreads, Color[][] colorMat, AABB aabb, short[][][] vol) {
         if (!isCorrectNumThreads(numOfThreads)) {
             throw new IllegalArgumentException(NUM_OF_THREADS_ERR_MSG);
         }
@@ -269,7 +258,7 @@ public class VolumeRenderer {
             startIndex = boundingIndices[numOfSection][0];
             endIndex = boundingIndices[numOfSection][1];
             RotatedRayCasterTask task = new RotatedRayCasterTask(
-                    colorMat, aabb, aabbOffset, latch, vol, startIndex, endIndex
+                    colorMat, aabb, latch, this, vol, startIndex, endIndex
             );
             taskThreads[numOfSection] = new Thread(task);
             taskThreads[numOfSection].start();
@@ -286,6 +275,23 @@ public class VolumeRenderer {
         return Camera.VIEW_PLANE_WIDTH % numOfThreads == 0;
     }
 
+
+    private void populateMapDefault() {
+        huToColorMap.put((short) -99, Color.WHITE);
+        huToColorMap.put((short) 299, Color.color(1, 0.79, 0.6));
+        huToColorMap.put((short) 1900, Color.color(0.8902, 0.8549, 0.7882));
+        huToColorMap.put(Short.MAX_VALUE, Color.WHITE);
+    }
+
+    public boolean addHuToColorMapping(short gteqCeilVal, Color color) {
+        Color c = this.huToColorMap.put(gteqCeilVal, color);
+        return c == null;
+    }
+
+    public boolean removeHuToColorMapping(short gteqCeilVal) {
+        Color c = this.huToColorMap.remove(gteqCeilVal);
+        return c == null;
+    }
 }
 
 

@@ -1,3 +1,5 @@
+package model;
+
 public class Voxel extends Vector3D {
 
     private Vector3D gradient;

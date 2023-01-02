@@ -1,4 +1,4 @@
-
+package component;
 /*
 CS-255 Getting started code for the assignment
 I do not give you permission to post this code online

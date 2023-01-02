@@ -1,4 +1,9 @@
+package component;
+
+import component.VolumeRenderer;
 import javafx.scene.paint.Color;
+import model.AABB;
+import model.Vector3D;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -8,17 +13,19 @@ public abstract class RayCasterTask {
     protected final AABB aabb;
     protected final Vector3D aabbOffset;
     protected final CountDownLatch latch;
+    protected VolumeRenderer volumeRenderer;
     protected final short[][][] vol;
     protected final int startIndex;
     protected final int endIndex;
 
 
-    public RayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset, CountDownLatch latch,
+    public RayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset, CountDownLatch latch, VolumeRenderer volumeRenderer,
                          short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;
         this.aabbOffset = aabbOffset;
         this.latch = latch;
+        this.volumeRenderer = volumeRenderer;
         this.vol = vol;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
@@ -26,10 +33,10 @@ public abstract class RayCasterTask {
 
 //    @Override
 //    public void run() {
-//        for (int y = 0; y < Camera.VIEW_PLANE_HEIGHT; y++) {
-//            Vector3D curStep = startStepX;
+//        for (int y = 0; y < component.Camera.VIEW_PLANE_HEIGHT; y++) {
+//            model.Vector3D curStep = startStepX;
 //            for (int x = startIndex; x < endIndex; x++) {
-//                Vector3D rayOrigin = new Vector3D(Camera.getViewPortCorner0().add(curStepX));
+//                model.Vector3D rayOrigin = new model.Vector3D(component.Camera.getViewPortCorner0().add(curStepX));
 //                adjust for the current pixel
 //                rayOrigin.setY(y);
 //                curStep = curStep.add(stepX);
@@ -37,13 +44,13 @@ public abstract class RayCasterTask {
 //
 //                rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, WorldOld.DATASET_CENTRE);
 //
-//                Ray ray = new Ray(rayOrigin, Camera.getViewPortNormal());
-//                Vector3D[] intersectionPoints = VolumeRenderer.translateToVolumeCoordinates(
+//                model.Ray ray = new model.Ray(rayOrigin, component.Camera.getViewPortNormal());
+//                model.Vector3D[] intersectionPoints = component.VolumeRenderer.translateToVolumeCoordinates(
 //                        aabb.getIntersections(ray, 0, Float.MAX_VALUE),
 //                        aabbOffset);
 //                Color color;
 //                if (intersectionPoints != null) {
-//                    color = VolumeRenderer.sampleCompositeShade(
+//                    color = component.VolumeRenderer.sampleCompositeShade(
 //                            intersectionPoints[0],
 //                            intersectionPoints[1],
 //                            vol

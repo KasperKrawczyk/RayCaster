@@ -1,3 +1,7 @@
+package mathutil;
+
+import model.Vector3D;
+
 public class Gradients {
 
     private Gradients() {
@@ -205,7 +209,7 @@ public class Gradients {
             x1 = lerp(vol[z - zLo][y - yLo][x - xLo], vol[z][y][x], decimalPart);
         } else {
             //central difference
-            x0 = lerp(vol[z - zHi][y - yHi][x - xHi], vol[z - zLo][y - yLo][x - xLo], decimalPart);
+            x0 = lerp(vol[z - zLo][y - yLo][x - xLo], vol[z - zHi][y - yHi][x - xHi], decimalPart);
             x1 = lerp(vol[z + zLo][y + yLo][x + xLo], vol[z + zHi][y + yHi][x + xHi], decimalPart);
         }
         return x1 - x0;
@@ -247,13 +251,13 @@ public class Gradients {
         return x1 - x0;
     }
 
-    public static short tlerp(double x, double y, double z, short[][][] vol) {
+    public static short tlerp(double z, double y, double x, short[][][] vol) {
         int depth = vol.length;
         int height = vol[0].length;
         int width = vol[0][0].length;
-        x = Math.min(Math.max(0, x), width - 1);
-        y = Math.min(Math.max(0, y), height - 1);
         z = Math.min(Math.max(0, z), depth - 1);
+        y = Math.min(Math.max(0, y), height - 1);
+        x = Math.min(Math.max(0, x), width - 1);
 
 
         float x0 = (float) Math.max(Math.min(Math.floor(x), width - 1), 0);
@@ -268,16 +272,23 @@ public class Gradients {
         float yPrim = (float) (y - y0);
         float zPrim = (float) (z - z0);
 
-        // 'corner' colour values
-        short upLeftClose = vol[(int) x0][(int) y0][(int) z0];
-        short downLeftClose = vol[(int) x1][(int) y0][(int) z0];
-        short upRightClose = vol[(int) x0][(int) y1][(int) z0];
-        short downRightClose = vol[(int) x1][(int) y1][(int) z0];
+        int z0Int = (int) z0;
+        int y0Int = (int) y0;
+        int x0Int = (int) x0;
+        int z1Int = (int) z1;
+        int y1Int = (int) y1;
+        int x1Int = (int) x1;
 
-        short upLeftFar = vol[(int) x0][(int) y0][(int) z1];
-        short downLeftFar = vol[(int) x1][(int) y0][(int) z1];
-        short upRightFar = vol[(int) x0][(int) y1][(int) z1];
-        short downRightFar = vol[(int) x1][(int) y1][(int) z1];
+        // 'corner' colour values
+        short upLeftClose = vol[z0Int][y0Int][x0Int];
+        short downLeftClose = vol[z0Int][y1Int][x0Int];
+        short upRightClose = vol[z0Int][y0Int][x1Int];
+        short downRightClose = vol[z0Int][y1Int][x1Int];
+
+        short upLeftFar = vol[z1Int][y0Int][x0Int];
+        short downLeftFar = vol[z1Int][y1Int][x0Int];
+        short upRightFar = vol[z1Int][y0Int][x1Int];
+        short downRightFar = vol[z1Int][y1Int][x1Int];
 
         float closeInterpolated = blerp(upLeftClose, upRightClose,
                 downLeftClose, downRightClose,
@@ -330,6 +341,22 @@ public class Gradients {
         }
         return rescaled;
 
+    }
+
+    public static short interpolateTricubic(float x, float y, float z, short[][][] vol) {
+        int width = vol[0][0].length;
+        int height = vol[0].length;
+        int depth = vol.length;
+
+        int x0 = (int) Math.max(Math.min(Math.floor(x), width - 1), 0);
+        int y0 = (int) Math.max(Math.min(Math.floor(y), height - 1), 0);
+        int z0 = (int) Math.max(Math.min(Math.floor(z), depth - 1), 0);
+
+        float xPrim = x - x0;
+        float yPrim = y - y0;
+        float zPrim = z - z0;
+
+        return (short) interpolateTricubic(vol, x0, y0, z0, xPrim, yPrim, zPrim);
     }
 
     public static float interpolateCubic(float[] arr, float xPrim) {

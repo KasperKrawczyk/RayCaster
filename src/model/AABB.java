@@ -1,3 +1,5 @@
+package model;
+
 public class AABB {
 
     private Vector3D max;
@@ -13,11 +15,11 @@ public class AABB {
      * Calculates intersection with the given ray between a certain distance
      * interval.
      * <p>
-     * Ray-box intersection is using IEEE numerical properties to ensure the
+     * model.Ray-box intersection is using IEEE numerical properties to ensure the
      * test is both robust and efficient, as described in:
      * <br>
      * <code>Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley: "An
-     * Efficient and Robust Ray-Box Intersection Algorithm" Journal of graphics
+     * Efficient and Robust model.Ray-Box Intersection Algorithm" Journal of graphics
      * tools, 10(1):49-54, 2005</code>
      *
      * @param ray incident ray
@@ -80,11 +82,11 @@ public class AABB {
      * Calculates intersection with the given ray between a certain distance
      * interval.
      * <p>
-     * Ray-box intersection is using IEEE numerical properties to ensure the
+     * model.Ray-box intersection is using IEEE numerical properties to ensure the
      * test is both robust and efficient, as described in:
      * <br>
      * <code>Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley: "An
-     * Efficient and Robust Ray-Box Intersection Algorithm" Journal of graphics
+     * Efficient and Robust model.Ray-Box Intersection Algorithm" Journal of graphics
      * tools, 10(1):49-54, 2005</code>
      *
      * @param ray incident ray

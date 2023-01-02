@@ -1,9 +1,14 @@
+import component.Camera;
+import component.VolumeRenderer;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import model.DataSet;
+import model.Quaternion;
+import model.Vector3D;
 
 public class TrackballPane extends StackPane {
     public static final int SIDE = 256;
@@ -11,15 +16,17 @@ public class TrackballPane extends StackPane {
 
     private WritableImage trackballImage = new WritableImage(SIDE, SIDE);
     private final ImageView mainView;
+    private final VolumeRenderer volumeRenderer;
     private ImageView trackballView = new ImageView(trackballImage);
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public TrackballPane(ImageView view) {
+    public TrackballPane(ImageView view, VolumeRenderer volumeRenderer) {
         super();
         paintImage();
         this.mainView = view;
+        this.volumeRenderer = volumeRenderer;
         this.getChildren().add(trackballView);
         this.trackballView.setImage(trackballImage);
 
@@ -46,7 +53,7 @@ public class TrackballPane extends StackPane {
             this.start = null;
             Camera.moveViewPortByRotator(this.lastQuat);
 
-            Image renderedImage = (VolumeRenderer.volumeRayCastParallelized(
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
                     DataSet.getBytes(),
                     Trackball.NUM_OF_THREADS)
             );

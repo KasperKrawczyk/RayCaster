@@ -1,5 +1,5 @@
 import component.Camera;
-import mathutil.Util;
+import mathutil.ImageUtil;
 import model.Axis;
 import model.Quaternion;
 import model.Vector3D;
@@ -7,7 +7,7 @@ import model.Vector3D;
 public class Rotations {
 
     private Rotations() {
-        throw new UnsupportedOperationException(Util.INSTANTIATION_ERR_MSG);
+        throw new UnsupportedOperationException(ImageUtil.INSTANTIATION_ERR_MSG);
     }
 
 

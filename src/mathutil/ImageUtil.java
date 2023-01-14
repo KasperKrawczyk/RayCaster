@@ -9,6 +9,8 @@ import model.DataSet;
 import model.Vector3D;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 /**
@@ -17,11 +19,11 @@ import java.util.HashMap;
  * @author Kasper Krawczyk
  */
 
-public class Util {
+public class ImageUtil {
 
     public static final String INSTANTIATION_ERR_MSG = "Utility classes should not be instantiated";
 
-    private Util() {
+    private ImageUtil() {
         throw new UnsupportedOperationException(INSTANTIATION_ERR_MSG);
     }
 
@@ -119,8 +121,8 @@ public class Util {
         int numOfPix = height * width;
 
 
-        int minInt = normalize(minFloat, 0, 255);
-        int maxInt = normalize(maxFloat, 0, 255);
+        int minInt = (int) normalizeWithConstraint(minFloat, 0, 1, 0, 255);
+        int maxInt = (int) normalizeWithConstraint(maxFloat, 0, 1, 0, 255);
 
         int histSize = maxInt - minInt + 1;
         int[] hist = new int[histSize];
@@ -220,20 +222,17 @@ public class Util {
         }
     }
 
-    public static int normalize(float val, int min, int max) {
-        return (int) ((max - min) * val);
+    public static double normalizeWithConstraint(double val, double minInput, double maxInput,
+                                     double minOutput, double maxOutput) {
+        return ((val - minInput) / (maxInput - minInput)) * (maxOutput - minOutput) + minOutput;
     }
 
-    public static double normalize(double val, double min, double max) {
-        return ((max - min) * val);
-    }
+
 
     private static Image volumeRender(short[][][] vol, Vector3D light, Vector3D eye) {
         int height = vol[0].length;
         int depth = vol.length;
         int width = vol[0][0].length;
-        System.out.println("height = " + height);
-        System.out.println("width = " + width);
         WritableImage renderedImage = new WritableImage(width, height);
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
         for (int y = 0; y < height; y++) {
@@ -264,11 +263,11 @@ public class Util {
         return renderedImage;
     }
 
-    public static Image updateRendering(int newY, int newX, Algo resizeAlgo, Vector3D light, Vector3D eye) {
+    public static Image updateRendering(DataSet dataSet, int newY, int newX, Algo resizeAlgo, Vector3D light, Vector3D eye) {
         Image updatedImage;
 
 
-        updatedImage = volumeRender(DataSet.getBytes(), light, eye);
+        updatedImage = volumeRender(dataSet.getBytes(), light, eye);
         if (resizeAlgo == Algo.BILINEAR) {
             updatedImage = rescaleBilinearColour(newX, newY, updatedImage);
         }
@@ -305,17 +304,17 @@ public class Util {
             max = (short) Math.max(max, val);
             min = (short) Math.min(min, val);
         }
-        System.out.println("max = " + max);
-        System.out.println("min = " + min);
+//        System.out.println("max = " + max);
+//        System.out.println("min = " + min);
         int histoLength = max + Math.abs(min) + 1;
-        System.out.println("histoLength = " + histoLength);
+//        System.out.println("histoLength = " + histoLength);
         int[] histo = new int[histoLength];
         for (short val : map.keySet()) {
             histo[val + Math.abs(min)] += map.get(val);
         }
 
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(histoFile), "utf-8"))) {
+                Files.newOutputStream(histoFile.toPath()), StandardCharsets.UTF_8))) {
             for (int i = 0; i < histo.length; i++) {
 
                 writer.append(String.valueOf(i + min)).append(",").append(String.valueOf(histo[i])).append("\n");

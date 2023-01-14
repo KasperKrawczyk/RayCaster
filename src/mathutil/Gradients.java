@@ -5,7 +5,7 @@ import model.Vector3D;
 public class Gradients {
 
     private Gradients() {
-        throw new UnsupportedOperationException(Util.INSTANTIATION_ERR_MSG);
+        throw new UnsupportedOperationException(ImageUtil.INSTANTIATION_ERR_MSG);
     }
 
     /**
@@ -209,7 +209,7 @@ public class Gradients {
             x1 = lerp(vol[z - zLo][y - yLo][x - xLo], vol[z][y][x], decimalPart);
         } else {
             //central difference
-            x0 = lerp(vol[z - zLo][y - yLo][x - xLo], vol[z - zHi][y - yHi][x - xHi], decimalPart);
+            x0 = lerp(vol[z - zHi][y - yHi][x - xHi], vol[z - zLo][y - yLo][x - xLo], decimalPart);
             x1 = lerp(vol[z + zLo][y + yLo][x + xLo], vol[z + zHi][y + yHi][x + xHi], decimalPart);
         }
         return x1 - x0;
@@ -462,6 +462,17 @@ public class Gradients {
         }
 
         return interpolateCubic(new float[]{p0, p1, p2, p3}, yPrim);
+    }
+
+    public static double mapToNewRange(double input, double minInput, double maxInput, double minOutput, double maxOutput, int deciPrec) {
+        double deltaInput = maxInput - minInput;
+        double deltaOutput = maxOutput - minOutput;
+        double scale = deltaOutput / deltaInput;
+        double negA = -1 * minInput;
+        double offset = (negA * scale) + minOutput;
+        double finalNumber = (input * scale) + offset;
+        int calcScale = (int) Math.pow(10, deciPrec);
+        return (double) Math.round(finalNumber * calcScale) / calcScale;
     }
 
 }

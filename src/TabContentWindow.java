@@ -1,11 +1,10 @@
 import component.Camera;
-import component.Main;
+import config.IConfig;
+import config.HeadConfig;
 import component.VolumeRenderer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,7 +22,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import mathutil.Util;
+import mathutil.ImageUtil;
 import model.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Kasper Krawczyk
  */
-public class MainWindow extends BorderPane {
+public class TabContentWindow extends BorderPane {
 
     public static final String MAIN_TITLE = "CThead viewer";
     public static final int MAIN_SIDE = 1024;
@@ -56,7 +55,6 @@ public class MainWindow extends BorderPane {
     private final Slider angleSlider;
     private final ToggleButton renderButton;
 
-    private int currentSize;
     private Algo currentAlgo;
     private DataSet dataSet;
     private VolumeRenderer volumeRenderer;
@@ -65,10 +63,12 @@ public class MainWindow extends BorderPane {
     private ImageView mainView;
     private TrackballPane trackballPane;
     private Trackball trackball;
+    private Camera camera;
     private String datasetPath;
     private int datasetSize;
     private int datasetHeight;
     private int datasetWidth;
+    private int currentSize;
 
 
     /**
@@ -76,29 +76,27 @@ public class MainWindow extends BorderPane {
      *
      * @param stage the stage on which to build the window
      */
-    public MainWindow(Stage stage) {
+    public TabContentWindow(Stage stage, IConfig config) {
         stage.setTitle(MAIN_TITLE);
         this.setMinHeight(MAIN_SIDE);
         this.setMinWidth(MAIN_SIDE);
+        this.camera = new Camera(config);
 
-        datasetPath = Main.getDatasetPath();
-        datasetSize = Main.getDatasetSize();
-        datasetHeight = Main.getDatasetHeight();
-        datasetWidth = Main.getDatasetWidth();
-
-        this.dataSet = new DataSet(datasetPath,
-                datasetSize,
-                datasetHeight,
-                datasetWidth);
+        this.dataSet = new DataSet(
+                config.getDatasetPath(),
+                config.getDatasetSize(),
+                config.getDatasetHeight(),
+                config.getDatasetWidth()
+        );
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;
-        this.volumeRenderer = new VolumeRenderer();
+        this.volumeRenderer = new VolumeRenderer(camera);
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);
         this.angleSlider = new Slider(0.0, 90.0, 0.0);
         this.renderButton = new RadioButton(RENDER_BTN_MSG);
-        this.trackballPane = new TrackballPane(mainView, volumeRenderer);
+        this.trackballPane = new TrackballPane(mainView, volumeRenderer, camera, dataSet);
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
@@ -110,10 +108,9 @@ public class MainWindow extends BorderPane {
                 buildCameraInputs());
         this.leftVBox.getChildren().addAll(
                 buildColorMappingVBox());
-        Camera.initCamera();
-        this.trackball = new Trackball(mainView, volumeRenderer);
+        this.trackball = new Trackball(mainView, volumeRenderer, camera, dataSet);
 
-        Util.writeHistogram(DataSet.getBytes());
+        ImageUtil.writeHistogram(dataSet.getBytes());
 
 //        Image initRender = (component.VolumeRenderer.volumeRayCastParallelized(model.DataSet.getBytes(),
 //                80));
@@ -121,7 +118,7 @@ public class MainWindow extends BorderPane {
 
 
         this.renderButton.setOnAction(event -> {
-            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                     Trackball.NUM_OF_THREADS));
             mainView.setImage(renderedImage);
         });
@@ -143,11 +140,12 @@ public class MainWindow extends BorderPane {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                Camera.initCamera();
-                System.out.println(newValue.doubleValue());
-                Camera.moveViewPortByAngleDegrees(newValue.doubleValue());
+                camera.initCamera();
 
-                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                System.out.println(newValue.doubleValue());
+                camera.moveViewPortByAngleDegrees(newValue.doubleValue());
+
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }
@@ -159,7 +157,7 @@ public class MainWindow extends BorderPane {
         this.setCenter(mainView);
         this.setLeft(leftVBox);
 
-        Scene scene = new Scene(this, MAX_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL + topHBox.getMaxHeight());
+        Scene scene = new Scene(this, MAIN_SIDE, MAIN_SIDE);
         stage.setScene(scene);
         stage.show();
 
@@ -197,7 +195,9 @@ public class MainWindow extends BorderPane {
             Vector3D light = new Vector3D(127 - (int) event.getX(), 127 - (int) event.getY(), yDelta.get());
             Vector3D eye = new Vector3D(127, 127, -200);
 //            System.out.println(yDelta);
-            Image updatedImage = Util.updateRendering(currentSize,
+            Image updatedImage = ImageUtil.updateRendering(
+                    dataSet,
+                    currentSize,
                     currentSize,
                     currentAlgo,
                     light,
@@ -213,7 +213,9 @@ public class MainWindow extends BorderPane {
             Vector3D light = new Vector3D(127 - (int) event.getX(), 127 - (int) event.getY(), 200);
             Vector3D eye = new Vector3D(127, 127, -200);
 
-            Image updatedImage = Util.updateRendering(currentSize,
+            Image updatedImage = ImageUtil.updateRendering(
+                    dataSet,
+                    currentSize,
                     currentSize,
                     currentAlgo,
                     light,
@@ -257,8 +259,8 @@ public class MainWindow extends BorderPane {
                 } catch (NumberFormatException nfe) {
                     return;
                 }
-                Camera.moveLightTo(new Point3D(newX, newY, newZ));
-                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                camera.moveLightTo(new Point3D(newX, newY, newZ));
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }
@@ -281,9 +283,9 @@ public class MainWindow extends BorderPane {
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                Camera.updateViewPort(newValue.intValue());
+                camera.updateViewPort(newValue.intValue());
                 System.out.println(newValue);
-                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(DataSet.getBytes(),
+                Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
             }

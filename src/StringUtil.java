@@ -1,9 +1,9 @@
-import mathutil.Util;
+import mathutil.ImageUtil;
 
 public class StringUtil
 {
     private StringUtil() {
-        throw new UnsupportedOperationException(Util.INSTANTIATION_ERR_MSG);
+        throw new UnsupportedOperationException(ImageUtil.INSTANTIATION_ERR_MSG);
     }
 
     public static boolean isNotEmpty(String s) {

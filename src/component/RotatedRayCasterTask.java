@@ -14,6 +14,7 @@ public class RotatedRayCasterTask implements Runnable {
 
     protected final Color[][] image;
     protected final AABB aabb;
+    protected final Camera camera;
     protected final CountDownLatch latch;
     protected final VolumeRenderer volumeRenderer;
     protected final short[][][] vol;
@@ -24,11 +25,12 @@ public class RotatedRayCasterTask implements Runnable {
             new Vector3D(-10, -40, -10)
     );
 
-    public RotatedRayCasterTask(Color[][] image, AABB aabb,
+    public RotatedRayCasterTask(Color[][] image, AABB aabb, Camera camera,
                                 CountDownLatch latch, VolumeRenderer volumeRenderer,
                                 short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;
+        this.camera = camera;
         this.latch = latch;
         this.volumeRenderer = volumeRenderer;
         this.vol = vol;
@@ -44,7 +46,7 @@ public class RotatedRayCasterTask implements Runnable {
 
             for (int x = startIndex; x < endIndex; x++) {
                 passThroughPixel = getCurRayOrigin(x, y);
-                ray = getCurRay(Camera.getEye(), passThroughPixel);
+                ray = getCurRay(camera.getEye(), passThroughPixel);
 
                 Vector3D[] intersectionPoints = translateToVolumeCoordinates(
                         aabb.getIntersections(ray, 0, Float.MAX_VALUE));
@@ -81,10 +83,10 @@ public class RotatedRayCasterTask implements Runnable {
         float quotientY = curY / (float) Camera.VIEW_PLANE_HEIGHT;
 
         return Gradients.blerp(
-                Camera.getViewPortCorner0(),
-                Camera.getViewPortCorner1(),
-                Camera.getViewPortCorner2(),
-                Camera.getViewPortCorner3(),
+                camera.getViewPortCorner0(),
+                camera.getViewPortCorner1(),
+                camera.getViewPortCorner2(),
+                camera.getViewPortCorner3(),
                 quotientX,
                 quotientX,
                 quotientY

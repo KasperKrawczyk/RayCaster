@@ -25,13 +25,13 @@ public class DataSet {
     public final int height;
     public final int width;
 
-    private static float[][][] grey;
-    private static short[][][] bytes;
-    private static float[][][] gradients;
+    private final float[][][] grey;
+    private short[][][] bytes;
+    private float[][][] gradients;
 
     private final String path;
 
-    private File file;
+    private final File file;
 
     private short minVolValue = Short.MAX_VALUE;
     private short maxVolValue = Short.MIN_VALUE;
@@ -198,11 +198,11 @@ public class DataSet {
         }
     }
 
-    public static short[][][] getBytes() {
+    public short[][][] getBytes() {
         return bytes;
     }
 
-    public static float[][][] getGrey() {
+    public float[][][] getGrey() {
         return grey;
     }
 
@@ -238,7 +238,7 @@ public class DataSet {
         return file;
     }
 
-    public static float[][][] getGradients() {
+    public float[][][] getGradients() {
         return gradients;
     }
 

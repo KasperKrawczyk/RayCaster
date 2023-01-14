@@ -1,14 +1,13 @@
 package mathutil;
 
 import javafx.scene.paint.Color;
-import mathutil.Util;
 import model.DataSet;
 import model.Vector3D;
 
 public class Reflections {
 
     private Reflections() {
-        throw new UnsupportedOperationException(Util.INSTANTIATION_ERR_MSG);
+        throw new UnsupportedOperationException(ImageUtil.INSTANTIATION_ERR_MSG);
     }
 
     public static Color applyReflectionModel(Vector3D light, Vector3D eye, Vector3D intersectionPoint,

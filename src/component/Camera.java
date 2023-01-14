@@ -1,5 +1,7 @@
 package component;
 
+import config.HeadConfig;
+import config.IConfig;
 import model.Axis;
 import model.Point3D;
 import model.Quaternion;
@@ -15,20 +17,28 @@ public class Camera {
     public static final int VIEW_PORT_EYE_DISTANCE_MULT = (int) (VIEW_PLANE_WIDTH / 1.38);
     public static final float WIDTH_HEIGHT_RESOLUTION = (float) VIEW_PLANE_WIDTH / (float) VIEW_PLANE_HEIGHT;
     public static final int DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER = 100;
-    public static Vector3D viewPortCentre;
-    public static Vector3D viewPortCorner0; //start of the matrix, first row
-    public static Vector3D viewPortCorner1; //end of the matrix, first row
-    public static Vector3D viewPortCorner2; //start of the matrix, last row
-    public static Vector3D viewPortCorner3; //end of the matrix, last row
-    public static Vector3D eye; // behind viewPortCentre along the DATASET_CENTRE <> viewPortCentre axis
-    public static Vector3D viewPortNormal;
-    public static Vector3D light;
-    public static double circleRadius;
-    public static double viewPortAngle;
 
-    public static int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER;
+    public Vector3D viewPortCentre;
+    public Vector3D viewPortCorner0; //start of the matrix, first row
+    public Vector3D viewPortCorner1; //end of the matrix, first row
+    public Vector3D viewPortCorner2; //start of the matrix, last row
+    public Vector3D viewPortCorner3; //end of the matrix, last row
+    public Vector3D eye; // behind viewPortCentre along the DATASET_CENTRE <> viewPortCentre axis
+    public Vector3D viewPortNormal;
+    public Vector3D light;
+    public double circleRadius;
+    public double viewPortAngle;
 
-    public static void initCamera() {
+    public int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER;
+
+    private final IConfig config;
+
+    public Camera(IConfig config) {
+        this.config = config;
+        initCamera();
+    }
+
+    public void initCamera() {
         initViewPortCentre();
         initViewPortNormal();
         updateViewPortCorners();
@@ -38,15 +48,15 @@ public class Camera {
 
     }
 
-    private static void initViewPortCentre() {
+    private void initViewPortCentre() {
         //along the x-axis, the view plane will be centred on the centre of the dataset
-        double x = Main.getDatasetWidth() / 2.0;
-        double y = Main.getDatasetSize() / 2.0;
+        double x = config.getDatasetWidth() / 2.0;
+        double y = config.getDatasetSize() / 2.0;
         viewPortCentre = new Vector3D(x, y, VIEW_PORT_DATASET_CENTRE_DISTANCE);
     }
 
 
-    private static void initEye() {
+    private void initEye() {
         eye = viewPortCentre
                 .add(DATASET_CENTRE
                         .sub(viewPortCentre)
@@ -56,24 +66,24 @@ public class Camera {
                 );
     }
 
-    private static void initLight() {
+    private void initLight() {
         light = new Vector3D(65.5, 40, -200);
     }
 
 
-    private static void initCircleRadius() {
+    private void initCircleRadius() {
         circleRadius = DATASET_CENTRE.sub(viewPortCentre).magnitude();
     }
 
-    private static void initViewPortNormal() {
+    private void initViewPortNormal() {
         viewPortNormal = DATASET_CENTRE.sub(viewPortCentre).normalize();
     }
 
-    public static void moveLightByVector(Vector3D moveBy) {
+    public void moveLightByVector(Vector3D moveBy) {
         light.add(moveBy);
     }
 
-    public static void moveLightTo(Point3D newLightLocation) {
+    public  void moveLightTo(Point3D newLightLocation) {
         light = new Vector3D(
                 newLightLocation.getX(),
                 newLightLocation.getY(),
@@ -89,7 +99,7 @@ public class Camera {
      * and the <code>viewPortNormal</code>.
      * @param rotator the model.Quaternion to rotate <code>viewPortCentreFloor</code> by
      */
-    public static void moveViewPortByRotator(Quaternion rotator) {
+    public void moveViewPortByRotator(Quaternion rotator) {
         //first, the centre point of the view plane is calculated
         viewPortCentre = rotator.rotate(viewPortNormal, DATASET_CENTRE);
         viewPortNormal = DATASET_CENTRE.sub(viewPortCentre).normalize();
@@ -106,7 +116,7 @@ public class Camera {
         updateEye();
     }
 
-    public static void updateViewPort(int newDistanceMultiplier) {
+    public void updateViewPort(int newDistanceMultiplier) {
         setViewPortDatasetCentreDistanceMultiplier(newDistanceMultiplier);
         //first, the new centre point of the view plane is calculated
         viewPortCentre = DATASET_CENTRE.newMovedByVector(viewPortNormal.flip().mult(DEFAULT_VIEWPORT_DATASET_CENTRE_DISTANCE_MULTIPLIER));
@@ -119,7 +129,7 @@ public class Camera {
         updateEye();
     }
 
-    public static void moveViewPortByAngleDegrees(double degrees) {
+    public void moveViewPortByAngleDegrees(double degrees) {
         //first, the centre floor point of the view plane is calculated
         viewPortCentre = Quaternion.makeExactQuaternionDegrees(degrees, Axis.Y.getVector())
                 .rotate(viewPortCentre, DATASET_CENTRE);
@@ -140,7 +150,7 @@ public class Camera {
      * Abstractly, the two points are ends of the segment tangential to the
      * circle at the point <code>viewPortCentreFloor</code>.
      */
-    private static void updateViewPortCorners() {
+    private void updateViewPortCorners() {
 
         //view plane equation
         //normal.x, normal.y, normal.z,
@@ -164,7 +174,7 @@ public class Camera {
 
     }
 
-    private static void printCameraUpdate() {
+    private void printCameraUpdate() {
         System.out.println("----------WORLD UPDATE----------");
         System.out.println("viewPortCentre = " + viewPortCentre);
         System.out.println("viewPortNormal = " + viewPortNormal);
@@ -174,7 +184,7 @@ public class Camera {
         System.out.println("viewPortCorner3 = " + viewPortCorner3);
     }
 
-    private static void updateEye() {
+    private void updateEye() {
         Vector3D v = viewPortNormal.flip().mult(VIEW_PORT_EYE_DISTANCE_MULT);
         eye = new Vector3D(viewPortCentre);
         eye.moveThisByVector(v);
@@ -186,7 +196,7 @@ public class Camera {
      * @return a vector indicating the direction and magnitude of transition
      * from a pixel to the next on the same row
      */
-    public static Vector3D getStepX() {
+    public Vector3D getStepX() {
         return viewPortCorner1.sub(viewPortCorner0).normalize();
     }
 
@@ -196,47 +206,47 @@ public class Camera {
      * @return a vector indicating the direction and magnitude of transition
      * from a pixel to the next on the next row
      */
-    public static Vector3D getStepY() {
+    public Vector3D getStepY() {
         return viewPortCorner2.sub(viewPortCorner0).normalize();
     }
 
-    public static Vector3D getLight() {
+    public Vector3D getLight() {
         return light;
     }
 
-    public static Vector3D getViewPortNormal() {
+    public Vector3D getViewPortNormal() {
         return viewPortNormal;
     }
 
-    public static void setViewPortAngle(double viewPortAngle) {
-        Camera.viewPortAngle = viewPortAngle;
+    public  void setViewPortAngle(double viewPortAngle) {
+        this.viewPortAngle = viewPortAngle;
     }
 
-    public static Vector3D getViewPortCorner0() {
+    public Vector3D getViewPortCorner0() {
         return viewPortCorner0;
     }
 
-    public static Vector3D getViewPortCorner1() {
+    public Vector3D getViewPortCorner1() {
         return viewPortCorner1;
     }
 
-    public static Vector3D getViewPortCorner2() {
+    public Vector3D getViewPortCorner2() {
         return viewPortCorner2;
     }
 
-    public static Vector3D getViewPortCorner3() {
+    public Vector3D getViewPortCorner3() {
         return viewPortCorner3;
     }
 
-    public static Vector3D getEye() {
+    public Vector3D getEye() {
         return eye;
     }
 
-    public static int getViewPortDatasetCentreDistanceMultiplier() {
+    public int getViewPortDatasetCentreDistanceMultiplier() {
         return viewPortDatasetCentreDistanceMultiplier;
     }
 
-    public static void setViewPortDatasetCentreDistanceMultiplier(int viewPortDatasetCentreDistanceMultiplier) {
-        Camera.viewPortDatasetCentreDistanceMultiplier = viewPortDatasetCentreDistanceMultiplier;
+    public void setViewPortDatasetCentreDistanceMultiplier(int viewPortDatasetCentreDistanceMultiplier) {
+        this.viewPortDatasetCentreDistanceMultiplier = viewPortDatasetCentreDistanceMultiplier;
     }
 }

@@ -14,14 +14,18 @@ public class Trackball {
 
     private final ImageView mainView;
     private final VolumeRenderer volumeRenderer;
+    private final Camera camera;
+    private final DataSet dataSet;
 
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public Trackball(ImageView mainView, VolumeRenderer volumeRenderer) {
+    public Trackball(ImageView mainView, VolumeRenderer volumeRenderer, Camera camera, DataSet dataSet) {
         this.mainView = mainView;
         this.volumeRenderer = volumeRenderer;
+        this.camera = camera;
+        this.dataSet = dataSet;
 
         this.mainView.setOnMousePressed(event -> {
             this.start = new Point2D(event.getX(), event.getY());
@@ -41,9 +45,9 @@ public class Trackball {
                 this.lastQuat = curQuat.mult(this.lastQuat).normalize();
                 this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
                 this.start = new Point2D(event.getX(), event.getY());
-                Camera.moveViewPortByRotator(this.lastQuat);
+                camera.moveViewPortByRotator(this.lastQuat);
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
-                        DataSet.getBytes(),
+                        dataSet.getBytes(),
                         NUM_OF_THREADS)
                 );
                 this.mainView.setImage(renderedImage);
@@ -60,11 +64,11 @@ public class Trackball {
             this.lastQuat = curQuat.mult(this.lastQuat).normalize();
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
             this.start = null;
-            Camera.moveViewPortByRotator(this.lastQuat);
+            camera.moveViewPortByRotator(this.lastQuat);
 
 
             Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
-                    DataSet.getBytes(),
+                    dataSet.getBytes(),
                     NUM_OF_THREADS)
             );
             this.mainView.setImage(renderedImage);

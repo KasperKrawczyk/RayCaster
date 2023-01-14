@@ -17,8 +17,11 @@ import java.util.concurrent.CountDownLatch;
 public class VolumeRenderer {
 
     private final NavigableMap<Short, Color> huToColorMap = new TreeMap<>();
+    private final Camera camera;
 
-    public VolumeRenderer() {
+
+    public VolumeRenderer(Camera camera) {
+        this.camera = camera;
         populateMapDefault();
     }
 
@@ -118,7 +121,7 @@ public class VolumeRenderer {
 //            }
 
             Color shadedSample = Reflections.applyLambertianReflection(
-                    Camera.getLight(),
+                    camera.getLight(),
                     sample,
                     sample.getGradient(),
                     new Color(r, g, b, opacity)
@@ -258,7 +261,7 @@ public class VolumeRenderer {
             startIndex = boundingIndices[numOfSection][0];
             endIndex = boundingIndices[numOfSection][1];
             RotatedRayCasterTask task = new RotatedRayCasterTask(
-                    colorMat, aabb, latch, this, vol, startIndex, endIndex
+                    colorMat, aabb, camera, latch, this, vol, startIndex, endIndex
             );
             taskThreads[numOfSection] = new Thread(task);
             taskThreads[numOfSection].start();

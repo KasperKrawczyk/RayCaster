@@ -29,7 +29,7 @@ public class Point3D {
 
     @Override
     public String toString() {
-        return "model.Point3D{" +
+        return "Point3D{" +
                 "x=" + x +
                 ", y=" + y +
                 ", z=" + z +

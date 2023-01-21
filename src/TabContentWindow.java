@@ -64,10 +64,6 @@ public class TabContentWindow extends BorderPane {
     private TrackballPane trackballPane;
     private Trackball trackball;
     private Camera camera;
-    private String datasetPath;
-    private int datasetSize;
-    private int datasetHeight;
-    private int datasetWidth;
     private int currentSize;
 
 
@@ -90,7 +86,7 @@ public class TabContentWindow extends BorderPane {
         );
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;
-        this.volumeRenderer = new VolumeRenderer(camera);
+        this.volumeRenderer = new VolumeRenderer(camera, config.getHuToColorMap());
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);

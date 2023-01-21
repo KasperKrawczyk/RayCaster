@@ -1,13 +1,23 @@
 package config;
 
-import java.io.File;
 
+import javafx.scene.paint.Color;
+
+import java.io.File;
+import java.util.HashMap;
 
 public class HeadConfig implements IConfig {
 
     public static final String CT_HEAD_PATH = String.join(File.separator, "resources", "CThead");
     public static final int CT_HEAD_DATASET_SIZE = 113;
     public static final int CT_HEAD_SIDE = 256;
+
+    private final HashMap<Short, Color> huToColorMap = new HashMap<Short, Color>() {{
+        put((short) -99, Color.WHITE);
+        put((short) 299, Color.color(1, 0.79, 0.6));
+        put((short) 1900, Color.color(0.8902, 0.8549, 0.7882));
+        put(Short.MAX_VALUE, Color.WHITE);
+    }};
 
     private String datasetPath = CT_HEAD_PATH;
     private int datasetSize = CT_HEAD_DATASET_SIZE;
@@ -30,6 +40,10 @@ public class HeadConfig implements IConfig {
         return datasetWidth;
     }
 
+    public HashMap<Short, Color> getHuToColorMap() {
+        return huToColorMap;
+    }
+
     public void setDatasetPath(String datasetPath) {
         this.datasetPath = datasetPath;
     }
@@ -45,5 +59,7 @@ public class HeadConfig implements IConfig {
     public void setDatasetWidth(int datasetWidth) {
         this.datasetWidth = datasetWidth;
     }
+
+
 
 }

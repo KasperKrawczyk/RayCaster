@@ -8,10 +8,7 @@ import mathutil.Gradients;
 import mathutil.Reflections;
 import model.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 public class VolumeRenderer {
@@ -23,6 +20,11 @@ public class VolumeRenderer {
     public VolumeRenderer(Camera camera) {
         this.camera = camera;
         populateMapDefault();
+    }
+
+    public VolumeRenderer(Camera camera, HashMap<Short, Color> huToColorMap) {
+        this.camera = camera;
+        this.huToColorMap.putAll(huToColorMap);
     }
 
     public static final String NUM_OF_THREADS_ERR_MSG = "The number of threads should divide the image width with no remainder";

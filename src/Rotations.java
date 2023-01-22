@@ -1,4 +1,4 @@
-import component.Camera;
+import component.camera.SingleObjectCamera;
 import mathutil.ImageUtil;
 import model.Axis;
 import model.Quaternion;
@@ -22,15 +22,15 @@ public class Rotations {
 //        System.out.println("Quaterion3 = " + q3);
 
 //        System.out.println("rotated with q3 = " + q3.rotate(toRotate, World.ORIGIN));
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
-        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
-        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
-        toRotate = q1.rotate(toRotate, Camera.ORIGIN);
-        System.out.println("rotated with q1 = " + q1.rotate(toRotate, Camera.ORIGIN));
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, SingleObjectCamera.ORIGIN));
+        toRotate = q1.rotate(toRotate, SingleObjectCamera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, SingleObjectCamera.ORIGIN));
+        toRotate = q1.rotate(toRotate, SingleObjectCamera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, SingleObjectCamera.ORIGIN));
+        toRotate = q1.rotate(toRotate, SingleObjectCamera.ORIGIN);
+        System.out.println("rotated with q1 = " + q1.rotate(toRotate, SingleObjectCamera.ORIGIN));
 
-        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, Camera.ORIGIN);
+        Vector3D rotated = Quaternion.newRotator(45, Axis.X.getVector()).concatenate(90, Axis.Y).rotate(toRotate, SingleObjectCamera.ORIGIN);
         System.out.println("q1 norm = " + q1.normalize());
         System.out.println("q1 norm2 = " + q1.normalize2());
 

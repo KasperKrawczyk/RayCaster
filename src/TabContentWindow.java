@@ -1,6 +1,5 @@
-import component.Camera;
+import component.camera.SingleObjectCamera;
 import config.IConfig;
-import config.HeadConfig;
 import component.VolumeRenderer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -63,7 +62,7 @@ public class TabContentWindow extends BorderPane {
     private ImageView mainView;
     private TrackballPane trackballPane;
     private Trackball trackball;
-    private Camera camera;
+    private SingleObjectCamera singleObjectCamera;
     private int currentSize;
 
 
@@ -76,7 +75,7 @@ public class TabContentWindow extends BorderPane {
         stage.setTitle(MAIN_TITLE);
         this.setMinHeight(MAIN_SIDE);
         this.setMinWidth(MAIN_SIDE);
-        this.camera = new Camera(config);
+        this.singleObjectCamera = new SingleObjectCamera(config);
 
         this.dataSet = new DataSet(
                 config.getDatasetPath(),
@@ -86,13 +85,13 @@ public class TabContentWindow extends BorderPane {
         );
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;
-        this.volumeRenderer = new VolumeRenderer(camera, config.getHuToColorMap());
+        this.volumeRenderer = new VolumeRenderer(singleObjectCamera, config.getHuToColorMap());
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);
         this.angleSlider = new Slider(0.0, 90.0, 0.0);
         this.renderButton = new RadioButton(RENDER_BTN_MSG);
-        this.trackballPane = new TrackballPane(mainView, volumeRenderer, camera, dataSet);
+        this.trackballPane = new TrackballPane(mainView, volumeRenderer, singleObjectCamera, dataSet);
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
@@ -104,7 +103,7 @@ public class TabContentWindow extends BorderPane {
                 buildCameraInputs());
         this.leftVBox.getChildren().addAll(
                 buildColorMappingVBox());
-        this.trackball = new Trackball(mainView, volumeRenderer, camera, dataSet);
+        this.trackball = new Trackball(mainView, volumeRenderer, singleObjectCamera, dataSet);
 
         ImageUtil.writeHistogram(dataSet.getBytes());
 
@@ -136,10 +135,10 @@ public class TabContentWindow extends BorderPane {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                camera.initCamera();
+                singleObjectCamera.initCamera();
 
                 System.out.println(newValue.doubleValue());
-                camera.moveViewPortByAngleDegrees(newValue.doubleValue());
+                singleObjectCamera.moveViewPortByAngleDegrees(newValue.doubleValue());
 
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
@@ -255,7 +254,7 @@ public class TabContentWindow extends BorderPane {
                 } catch (NumberFormatException nfe) {
                     return;
                 }
-                camera.moveLightTo(new Point3D(newX, newY, newZ));
+                singleObjectCamera.moveLightTo(new Point3D(newX, newY, newZ));
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
@@ -274,12 +273,12 @@ public class TabContentWindow extends BorderPane {
 
     public VBox buildCameraInputs() {
         Slider slider = new Slider(-800, 400, 0);
-        Label sliderLabel = new Label("component.Camera distance");
+        Label sliderLabel = new Label("component.camera.Camera distance");
 
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                camera.updateViewPort(newValue.intValue());
+                singleObjectCamera.updateViewPort(newValue.intValue());
                 System.out.println(newValue);
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));

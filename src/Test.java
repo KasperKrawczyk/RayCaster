@@ -10,10 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import model.AABB;
-import model.Point3D;
-import model.Ray;
-import model.Vector3D;
+import model.*;
 
 public class Test {
     private static ImageView view;
@@ -67,13 +64,13 @@ public class Test {
                     Vector3D v = new Vector3D(x, y, 0);
                     Point3D o = Point3D.Point3DfromVector(v);
                     Ray ray = new Ray(v, n);
-                    Vector3D[] intersectionPoints = aabb.getIntersections(ray, 0, Float.MAX_VALUE);
+                    AABBIntersectionPoints aabbIntersectionPoints = aabb.getIntersections(ray, 0, Float.MAX_VALUE);
 
 
                     double colorMultiplier = 0;
-                    if(intersectionPoints != null) {
-                        System.out.println(intersectionPoints[1].sub(intersectionPoints[0]).magnitude());
-                        Point3D intersectionPointNear = Point3D.Point3DfromVector(intersectionPoints[0]);
+                    if(aabbIntersectionPoints != null) {
+                        System.out.println(aabbIntersectionPoints.getMaxVec().sub(aabbIntersectionPoints.getMinVec()).magnitude());
+                        Point3D intersectionPointNear = Point3D.Point3DfromVector(aabbIntersectionPoints.getMinVec());
                         double distance = o.distance(intersectionPointNear);
                         maxDist = Math.max(maxDist, distance);
                         minDist = Math.min(minDist, distance);

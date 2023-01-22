@@ -1,5 +1,6 @@
 package component;
 
+import component.camera.SceneCamera;
 import component.camera.SingleObjectCamera;
 import javafx.scene.paint.Color;
 import mathutil.Gradients;
@@ -9,14 +10,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 
-public class RotatedRayCasterTask implements Runnable {
+public class SceneRotatedRayCasterTask implements Runnable {
 
     protected final Color[][] image;
-    protected final AABB aabb;
-    protected final SingleObjectCamera singleObjectCamera;
+    protected final Scene scene;
+    protected final SceneCamera sceneCamera;
     protected final CountDownLatch latch;
-    protected final VolumeRenderer volumeRenderer;
-    protected final short[][][] vol;
+    protected final SceneVolumeRenderer sceneVolumeRenderer;
     protected final int startIndex;
     protected final int endIndex;
     public static final AABB ORIGIN_AABB = new AABB(
@@ -24,15 +24,14 @@ public class RotatedRayCasterTask implements Runnable {
             new Vector3D(-10, -40, -10)
     );
 
-    public RotatedRayCasterTask(Color[][] image, AABB aabb, SingleObjectCamera singleObjectCamera,
-                                CountDownLatch latch, VolumeRenderer volumeRenderer,
-                                short[][][] vol, int startIndex, int endIndex) {
+    public SceneRotatedRayCasterTask(Color[][] image, Scene scene, SceneCamera sceneCamera,
+                                     CountDownLatch latch, SceneVolumeRenderer sceneVolumeRenderer,
+                                     int startIndex, int endIndex) {
         this.image = image;
-        this.aabb = aabb;
-        this.singleObjectCamera = singleObjectCamera;
+        this.scene = scene;
+        this.sceneCamera = sceneCamera;
         this.latch = latch;
-        this.volumeRenderer = volumeRenderer;
-        this.vol = vol;
+        this.sceneVolumeRenderer = sceneVolumeRenderer;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
     }
@@ -45,20 +44,13 @@ public class RotatedRayCasterTask implements Runnable {
 
             for (int x = startIndex; x < endIndex; x++) {
                 passThroughPixel = getCurRayOrigin(x, y);
-                ray = getCurRay(singleObjectCamera.getEye(), passThroughPixel);
+                ray = getCurRay(sceneCamera.getEye(), passThroughPixel);
 
-                AABBIntersectionPoints aabbIntersectionPoints = translateToVolumeCoordinates(
-                        aabb.getIntersections(ray, 0, Float.MAX_VALUE));
-
-//                model.Vector3D[] origin = ORIGIN_AABB.getIntersections(ray, 0, Float.MAX_VALUE);
+                ArrayList<AABBIntersectionPoints> intersectionPoints = intersectAll(scene.getSceneObjects(), ray);
 
                 Color color;
-                if (aabbIntersectionPoints != null) {
-                    color = this.volumeRenderer.sampleCompositeShade(
-                            aabbIntersectionPoints.getMinVec(),
-                            aabbIntersectionPoints.getMaxVec(),
-                            vol
-                    );
+                if (intersectionPoints != null) {
+                    color = this.sceneVolumeRenderer.sampleCompositeShade(intersectionPoints);
                 } else {
                     color = Color.WHITE;
                 }
@@ -82,10 +74,10 @@ public class RotatedRayCasterTask implements Runnable {
         float quotientY = curY / (float) SingleObjectCamera.VIEW_PLANE_HEIGHT;
 
         return Gradients.blerp(
-                singleObjectCamera.getViewPortCorner0(),
-                singleObjectCamera.getViewPortCorner1(),
-                singleObjectCamera.getViewPortCorner2(),
-                singleObjectCamera.getViewPortCorner3(),
+                sceneCamera.getViewPortCorner0(),
+                sceneCamera.getViewPortCorner1(),
+                sceneCamera.getViewPortCorner2(),
+                sceneCamera.getViewPortCorner3(),
                 quotientX,
                 quotientX,
                 quotientY
@@ -135,12 +127,13 @@ public class RotatedRayCasterTask implements Runnable {
 
     }
 
-    protected ArrayList<AABBIntersectionPoints> intersectAll(ArrayList<AABB> aabbs, Ray ray) {
+    protected ArrayList<AABBIntersectionPoints> intersectAll(ArrayList<SceneObject> sceneObjects, Ray ray) {
         ArrayList<AABBIntersectionPoints> intersections = new ArrayList<>();
-        for (AABB aabb : aabbs) {
+        for (SceneObject sceneObject : sceneObjects) {
             AABBIntersectionPoints intersectionPoints = translateToVolumeCoordinates(
-                    aabb.getIntersections(ray, 0, Float.MAX_VALUE));
+                    sceneObject.getAabb().getIntersections(ray, 0, Float.MAX_VALUE));
             if (intersectionPoints != null) {
+                intersectionPoints.setSceneObject(sceneObject);
                 intersections.add(intersectionPoints);
             }
         }

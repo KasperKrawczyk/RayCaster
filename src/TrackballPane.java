@@ -1,4 +1,4 @@
-import component.Camera;
+import component.camera.SingleObjectCamera;
 import component.VolumeRenderer;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
@@ -15,8 +15,6 @@ import model.Point3D;
 import model.Quaternion;
 import model.Vector3D;
 
-import static mathutil.Gradients.mapToNewRange;
-
 public class TrackballPane extends StackPane {
     public static final int SIDE = 256;
     public static final float RADIUS = 1;
@@ -24,21 +22,21 @@ public class TrackballPane extends StackPane {
     private WritableImage trackballImage = new WritableImage(SIDE, SIDE);
     private final ImageView mainView;
     private final VolumeRenderer volumeRenderer;
-    private final Camera camera;
+    private final SingleObjectCamera singleObjectCamera;
     private final DataSet dataSet;
     private ImageView trackballView = new ImageView(trackballImage);
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public TrackballPane(ImageView view, VolumeRenderer volumeRenderer, Camera camera, DataSet dataSet) {
+    public TrackballPane(ImageView view, VolumeRenderer volumeRenderer, SingleObjectCamera singleObjectCamera, DataSet dataSet) {
         super();
         paintImage3();
         this.mainView = view;
         this.volumeRenderer = volumeRenderer;
         this.getChildren().add(trackballView);
         this.trackballView.setImage(trackballImage);
-        this.camera = camera;
+        this.singleObjectCamera = singleObjectCamera;
         this.dataSet = dataSet;
 
         // for debugging purposes
@@ -77,7 +75,7 @@ public class TrackballPane extends StackPane {
             this.lastQuat = curQuat.mult(this.lastQuat).normalize();
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
             this.start = null;
-            camera.moveViewPortByRotator(this.lastQuat);
+            singleObjectCamera.moveViewPortByRotator(this.lastQuat);
 
             Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
                     dataSet.getBytes(),

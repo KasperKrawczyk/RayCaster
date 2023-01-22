@@ -1,6 +1,6 @@
 package model;
 
-import component.Camera;
+import component.camera.SingleObjectCamera;
 
 public class Vector3D extends Point3D {
 
@@ -15,6 +15,10 @@ public class Vector3D extends Point3D {
     }
 
     public Vector3D(Vector3D toCopy) {
+        super(toCopy.getX(), toCopy.getY(), toCopy.getZ());
+    }
+
+    public Vector3D(Point3D toCopy) {
         super(toCopy.getX(), toCopy.getY(), toCopy.getZ());
     }
 
@@ -164,9 +168,9 @@ public class Vector3D extends Point3D {
     public Vector3D getPerpendicularUnitY(double degrees) {
         //first, this vector is translated to the origin
         Vector3D thisTranslated = new Vector3D(
-                Camera.ORIGIN.getX() - this.x,
+                SingleObjectCamera.ORIGIN.getX() - this.x,
                 this.y,
-                Camera.ORIGIN.getZ() - this.z);
+                SingleObjectCamera.ORIGIN.getZ() - this.z);
         //then, the translated vector can be rotated
         Vector3D translatedRotated = thisTranslated.rotateY(Math.toRadians(degrees));
         //finally, the translated and rotated vector can be moved back (de-translated)

@@ -22,11 +22,11 @@ public class AABB {
      * Efficient and Robust model.Ray-Box Intersection Algorithm" Journal of graphics
      * tools, 10(1):49-54, 2005</code>
      *
-     * @param ray incident ray
+     * @param ray     incident ray
      * @param minDist minimum distance
      * @param maxDist maximum distance
      * @return intersection point on the bounding box (only the first is
-     *         returned) or null if no intersection
+     * returned) or null if no intersection
      */
     public Vector3D getCloserIntersection(Ray ray, float minDist, float maxDist) {
         Vector3D invDir = new Vector3D(
@@ -89,13 +89,13 @@ public class AABB {
      * Efficient and Robust model.Ray-Box Intersection Algorithm" Journal of graphics
      * tools, 10(1):49-54, 2005</code>
      *
-     * @param ray incident ray
+     * @param ray     incident ray
      * @param minDist minimum distance
      * @param maxDist maximum distance
      * @return intersection points on the bounding box (the first is the closer one
-     *         the farther one is the second) or null if no intersection
+     * the farther one is the second) or null if no intersection
      */
-    public Vector3D[] getIntersections(Ray ray, float minDist, float maxDist) {
+    public AABBIntersectionPoints getIntersections(Ray ray, float minDist, float maxDist) {
         Vector3D invDir = new Vector3D(
                 1f / ray.getDirection().getX(),
                 1f / ray.getDirection().getY(),
@@ -140,10 +140,7 @@ public class AABB {
             tMax = tZMax;
         }
         if ((tMin < maxDist) && (tMax > minDist)) {
-            return new Vector3D[]{
-                    ray.getPointAtDistance((float) tMin),
-                    ray.getPointAtDistance((float) tMax)
-            };
+            return new AABBIntersectionPoints(this, ray, tMin, tMax);
         }
         return null;
     }

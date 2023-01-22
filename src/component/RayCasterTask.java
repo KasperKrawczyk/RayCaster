@@ -33,10 +33,10 @@ public abstract class RayCasterTask {
 
 //    @Override
 //    public void run() {
-//        for (int y = 0; y < component.Camera.VIEW_PLANE_HEIGHT; y++) {
+//        for (int y = 0; y < component.camera.Camera.VIEW_PLANE_HEIGHT; y++) {
 //            model.Vector3D curStep = startStepX;
 //            for (int x = startIndex; x < endIndex; x++) {
-//                model.Vector3D rayOrigin = new model.Vector3D(component.Camera.getViewPortCorner0().add(curStepX));
+//                model.Vector3D rayOrigin = new model.Vector3D(component.camera.Camera.getViewPortCorner0().add(curStepX));
 //                adjust for the current pixel
 //                rayOrigin.setY(y);
 //                curStep = curStep.add(stepX);
@@ -44,7 +44,7 @@ public abstract class RayCasterTask {
 //
 //                rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, WorldOld.DATASET_CENTRE);
 //
-//                model.Ray ray = new model.Ray(rayOrigin, component.Camera.getViewPortNormal());
+//                model.Ray ray = new model.Ray(rayOrigin, component.camera.Camera.getViewPortNormal());
 //                model.Vector3D[] intersectionPoints = component.VolumeRenderer.translateToVolumeCoordinates(
 //                        aabb.getIntersections(ray, 0, Float.MAX_VALUE),
 //                        aabbOffset);

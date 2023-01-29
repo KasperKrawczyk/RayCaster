@@ -1,3 +1,5 @@
+package ui;
+
 import component.camera.SingleObjectCamera;
 import component.VolumeRenderer;
 import javafx.geometry.Point2D;

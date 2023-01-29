@@ -15,6 +15,13 @@ public class Scene {
         this.light = light;
     }
 
+    public Scene(Vector3D light, ArrayList<SceneObject> sceneObjects) {
+        this.min = new Point3D(-1000, -1000, -1000);
+        this.max = new Point3D(1000, 1000, 1000);
+        this.light = light;
+        this.sceneObjects.addAll(sceneObjects);
+    }
+
     public ArrayList<SceneObject> getSceneObjects() {
         return sceneObjects;
     }

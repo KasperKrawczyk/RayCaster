@@ -42,7 +42,7 @@ public abstract class RayCasterTask {
 //                curStep = curStep.add(stepX);
 //
 //
-//                rayOrigin = TrackballPane.getLastQuat().rotate(rayOrigin, WorldOld.DATASET_CENTRE);
+//                rayOrigin = ui.TrackballPane.getLastQuat().rotate(rayOrigin, WorldOld.DATASET_CENTRE);
 //
 //                model.Ray ray = new model.Ray(rayOrigin, component.camera.Camera.getViewPortNormal());
 //                model.Vector3D[] intersectionPoints = component.VolumeRenderer.translateToVolumeCoordinates(

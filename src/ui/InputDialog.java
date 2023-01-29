@@ -1,3 +1,5 @@
+package ui;
+
 import config.BrainConfig;
 import config.CustomConfig;
 import config.HeadConfig;
@@ -11,6 +13,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import ui.TabContentWindow;
 
 public class InputDialog extends BorderPane {
 
@@ -107,7 +110,7 @@ public class InputDialog extends BorderPane {
         VBox tabVBox = new VBox(tabPane);
         Tab headTab = new Tab("Head", new TabContentWindow(stage, new HeadConfig()));
 //        Tab multiHeadTab = new Tab("Multi Head");
-//        Tab brainTab = new Tab("Brain", new TabContentWindow(stage, new BrainConfig()));
+//        Tab brainTab = new Tab("Brain", new ui.TabContentWindow(stage, new BrainConfig()));
 
         tabPane.getTabs().addAll(headTab);
         Scene scene = new Scene(tabVBox);

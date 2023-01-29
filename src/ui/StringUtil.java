@@ -1,3 +1,5 @@
+package ui;
+
 import mathutil.ImageUtil;
 
 public class StringUtil

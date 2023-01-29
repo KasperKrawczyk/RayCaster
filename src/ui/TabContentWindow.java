@@ -1,3 +1,5 @@
+package ui;
+
 import component.camera.SingleObjectCamera;
 import config.IConfig;
 import component.VolumeRenderer;

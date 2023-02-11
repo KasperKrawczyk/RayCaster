@@ -2,13 +2,19 @@ package model;
 
 public class AABB {
 
-    private Vector3D max;
-    private Vector3D min;
+    private final Vector3D max;
+    private final Vector3D min;
+    private final Point3D centre;
 
 
     public AABB(Vector3D max, Vector3D min) {
         this.max = max;
         this.min = min;
+        this.centre = new Point3D(
+                (min.getX() + max.getX()) / 2,
+                (min.getY() + max.getY()) / 2,
+                (min.getZ() + max.getZ()) / 2
+        );
     }
 
     /**
@@ -153,4 +159,7 @@ public class AABB {
         return min;
     }
 
+    public Point3D getCentre() {
+        return centre;
+    }
 }

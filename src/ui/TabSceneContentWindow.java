@@ -72,7 +72,6 @@ public class TabSceneContentWindow extends BorderPane {
         stage.setTitle(MAIN_TITLE);
         this.setMinHeight(MAIN_SIDE);
         this.setMinWidth(MAIN_SIDE);
-        this.sceneCamera = new SceneCamera(config);
 
         this.dataSet = new DataSet(
                 config.getDatasetPath(),
@@ -82,6 +81,7 @@ public class TabSceneContentWindow extends BorderPane {
         );
 
         this.scene = TestSceneBuilder.buildScene(dataSet.getBytes());
+        this.sceneCamera = new SceneCamera(config, this.scene.getCentroid());
 
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;

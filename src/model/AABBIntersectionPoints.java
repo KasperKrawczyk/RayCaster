@@ -31,9 +31,9 @@ public class AABBIntersectionPoints implements Comparable<AABBIntersectionPoints
     @Override
     public int compareTo(AABBIntersectionPoints other) {
         if (this.minDist > other.minDist) {
-            return -1;
-        } else if (this.minDist < other.minDist) {
             return 1;
+        } else if (this.minDist < other.minDist) {
+            return -1;
         }
         return 0;
     }

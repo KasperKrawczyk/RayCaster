@@ -12,25 +12,19 @@ import model.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-public class VolumeRenderer {
+public class SingleObjectVolumeRenderer extends AbstractVolumeRenderer {
 
-    private final NavigableMap<Short, Color> huToColorMap = new TreeMap<>();
-    private final SingleObjectCamera singleObjectCamera;
-
-
-    public VolumeRenderer(SingleObjectCamera singleObjectCamera) {
-        this.singleObjectCamera = singleObjectCamera;
-        populateMapDefault();
+    public SingleObjectVolumeRenderer(SingleObjectCamera singleObjectCamera) {
+        super(singleObjectCamera);
     }
 
-    public VolumeRenderer(SingleObjectCamera singleObjectCamera, HashMap<Short, Color> huToColorMap) {
-        this.singleObjectCamera = singleObjectCamera;
-        this.huToColorMap.putAll(huToColorMap);
+    public SingleObjectVolumeRenderer(SingleObjectCamera singleObjectCamera, HashMap<Short, Color> huToColorMap) {
+        super(singleObjectCamera, huToColorMap);
     }
 
     public static final String NUM_OF_THREADS_ERR_MSG = "The number of threads should divide the image width with no remainder";
 
-    public ArrayList<Voxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
+    public ArrayList<? extends AbstractVoxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
         ArrayList<Voxel> list = new ArrayList<>();
         int depth = vol.length;
         int height = vol[0].length;
@@ -78,7 +72,7 @@ public class VolumeRenderer {
         return list;
     }
 
-    public Color compositeSamples(ArrayList<Voxel> list) {
+    public Color compositeSamples(ArrayList<? extends AbstractVoxel> list) {
         double r = 0;
         double g = 0;
         double b = 0;
@@ -89,7 +83,7 @@ public class VolumeRenderer {
         double transparencyAcc = 1;
 
 
-        for (Voxel sample : list) {
+        for (Voxel sample : (List<Voxel>) list) {
             short sampleValue = sample.getMaterialValue();
 
             Color color = huToColorMap.ceilingEntry(sampleValue).getValue();
@@ -103,7 +97,7 @@ public class VolumeRenderer {
             }
 
             Color shadedSample = Reflections.applyLambertianReflection(
-                    singleObjectCamera.getLight(),
+                    camera.getLight(),
                     sample,
                     sample.getGradient(),
                     new Color(r, g, b, opacity)
@@ -129,9 +123,10 @@ public class VolumeRenderer {
     }
 
 
+
     public Color sampleCompositeShade(Vector3D intersectionVector0, Vector3D intersectionVector1,
                                       short[][][] vol) {
-        ArrayList<Voxel> list = collectSamples(intersectionVector0, intersectionVector1, vol);
+        ArrayList<Voxel> list = (ArrayList<Voxel>) collectSamples(intersectionVector0, intersectionVector1, vol);
         return compositeSamples(list);
 
 
@@ -176,28 +171,6 @@ public class VolumeRenderer {
 //    }
 
 
-    private static void matToImg(Color[][] colorMat, PixelWriter pixelWriter) {
-        for (int y = 0; y < SingleObjectCamera.VIEW_PLANE_HEIGHT; y++) {
-            for (int x = 0; x < SingleObjectCamera.VIEW_PLANE_WIDTH; x++) {
-                    pixelWriter.setColor(x, y, colorMat[y][x]);
-            }
-        }
-    }
-
-    private static int[][] getBoundingIndices(int sectionWidth) {
-        int numOfSections = SingleObjectCamera.VIEW_PLANE_WIDTH / sectionWidth;
-        //[sectionNum][0] for start, [sectionNum][1] for end
-        int[][] indices = new int[numOfSections][2];
-        int curStart;
-        int curEnd;
-        for (int sectionNum = 0; sectionNum < numOfSections; sectionNum++) {
-            curStart = sectionWidth * sectionNum;
-            curEnd = curStart + sectionWidth;
-            indices[sectionNum][0] = curStart;
-            indices[sectionNum][1] = curEnd;
-        }
-        return indices;
-    }
 
 //    private static void runRayCasterTasks(int numOfThreads, Color[][] colorMat, model.AABB aabb,
 //                                          model.Vector3D aabbOffset, short[][][] vol) {
@@ -243,7 +216,7 @@ public class VolumeRenderer {
             startIndex = boundingIndices[numOfSection][0];
             endIndex = boundingIndices[numOfSection][1];
             RotatedRayCasterTask task = new RotatedRayCasterTask(
-                    colorMat, aabb, singleObjectCamera, latch, this, vol, startIndex, endIndex
+                    colorMat, aabb, (SingleObjectCamera) camera, latch, this, vol, startIndex, endIndex
             );
             taskThreads[numOfSection] = new Thread(task);
             taskThreads[numOfSection].start();
@@ -258,24 +231,6 @@ public class VolumeRenderer {
 
     private static boolean isCorrectNumThreads(int numOfThreads) {
         return SingleObjectCamera.VIEW_PLANE_WIDTH % numOfThreads == 0;
-    }
-
-
-    private void populateMapDefault() {
-        huToColorMap.put((short) -99, Color.WHITE);
-        huToColorMap.put((short) 299, Color.color(1, 0.79, 0.6));
-        huToColorMap.put((short) 1900, Color.color(0.8902, 0.8549, 0.7882));
-        huToColorMap.put(Short.MAX_VALUE, Color.WHITE);
-    }
-
-    public boolean addHuToColorMapping(short gteqCeilVal, Color color) {
-        Color c = this.huToColorMap.put(gteqCeilVal, color);
-        return c == null;
-    }
-
-    public boolean removeHuToColorMapping(short gteqCeilVal) {
-        Color c = this.huToColorMap.remove(gteqCeilVal);
-        return c == null;
     }
 }
 

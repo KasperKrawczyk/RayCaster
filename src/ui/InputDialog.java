@@ -91,28 +91,31 @@ public class InputDialog extends BorderPane {
     }
 
     private void buildMainTabPane(Stage stage, IConfig customConfig) {
+        System.out.println("Custom mode");
         TabPane tabPane = new TabPane();
         VBox tabVBox = new VBox(tabPane);
         Tab headTab = new Tab("Head", new TabContentWindow(stage, new HeadConfig()));
 //        Tab multiHeadTab = new Tab("Multi Head");
-        Tab brainTab = new Tab("Brain", new TabContentWindow(stage, new BrainConfig()));
+//        Tab brainTab = new Tab("Brain", new TabContentWindow(stage, new BrainConfig()));
         Tab customTab = new Tab("Custom Dataset", new TabContentWindow(stage, customConfig));
 
-        tabPane.getTabs().addAll(headTab);
+        tabPane.getTabs().addAll(headTab, customTab);
         Scene scene = new Scene(tabVBox);
         stage.setScene(scene);
         stage.show();
     }
 
     private void buildMainTabPane(Stage stage) {
-        System.out.println("Non-custom");
+        System.out.println("Default mode");
         TabPane tabPane = new TabPane();
         VBox tabVBox = new VBox(tabPane);
         Tab headTab = new Tab("Head", new TabContentWindow(stage, new HeadConfig()));
+        Tab sceneTab = new Tab("Scene Test", new TabSceneContentWindow(stage, new HeadConfig()));
+
 //        Tab multiHeadTab = new Tab("Multi Head");
 //        Tab brainTab = new Tab("Brain", new ui.TabContentWindow(stage, new BrainConfig()));
 
-        tabPane.getTabs().addAll(headTab);
+        tabPane.getTabs().addAll(sceneTab);
         Scene scene = new Scene(tabVBox);
         stage.setScene(scene);
         stage.show();

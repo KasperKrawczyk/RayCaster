@@ -1,6 +1,7 @@
 package model;
 
-import component.VolumeRenderer;
+import component.AbstractVolumeRenderer;
+import component.SingleObjectVolumeRenderer;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -11,7 +12,7 @@ import javafx.scene.paint.Color;
 import java.util.Comparator;
 
 public class CMLIGrid extends GridPane {
-    private final VolumeRenderer volumeRenderer;
+    private final AbstractVolumeRenderer volumeRenderer;
     private final Slider rSlider = new Slider(0.0, 255.0, 0.0);
     private final Slider gSlider = new Slider(0.0, 255.0, 0.0);
     private final Slider bSlider = new Slider(0.0, 255.0, 0.0);
@@ -26,7 +27,7 @@ public class CMLIGrid extends GridPane {
     private final TextField ceilingTextField = new TextField("HU ceil val (incl)");
     private final Button removeButton = new Button("Remove mapping");
 
-    public CMLIGrid(ListView<ColorMappingListItem> listView, VolumeRenderer volumeRenderer) {
+    public CMLIGrid(ListView<ColorMappingListItem> listView, AbstractVolumeRenderer volumeRenderer) {
         this.volumeRenderer = volumeRenderer;
         this.setPadding(new Insets(10, 10, 10, 10));
         this.setVgap(5);

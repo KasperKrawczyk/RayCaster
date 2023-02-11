@@ -1,9 +1,10 @@
 package ui;
 
 import component.AbstractVolumeRenderer;
+import component.SceneVolumeRenderer;
+import component.camera.SceneCamera;
 import component.camera.SingleObjectCamera;
 import config.IConfig;
-import component.SingleObjectVolumeRenderer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -11,9 +12,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
@@ -29,13 +27,8 @@ import model.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * This class represents the main window of the application
- * along with the tools necessary to build it and the thumbnail window
- *
- * @author Kasper Krawczyk
- */
-public class TabContentWindow extends BorderPane {
+public class TabSceneContentWindow extends BorderPane {
+
 
     public static final String MAIN_TITLE = "CThead viewer";
     public static final int MAIN_SIDE = 1024;
@@ -65,7 +58,8 @@ public class TabContentWindow extends BorderPane {
     private ImageView mainView;
     private TrackballPane trackballPane;
     private Trackball trackball;
-    private SingleObjectCamera singleObjectCamera;
+    private SceneCamera sceneCamera;
+    private model.Scene scene;
     private int currentSize;
 
 
@@ -74,11 +68,11 @@ public class TabContentWindow extends BorderPane {
      *
      * @param stage the stage on which to build the window
      */
-    public TabContentWindow(Stage stage, IConfig config) {
+    public TabSceneContentWindow(Stage stage, IConfig config) {
         stage.setTitle(MAIN_TITLE);
         this.setMinHeight(MAIN_SIDE);
         this.setMinWidth(MAIN_SIDE);
-        this.singleObjectCamera = new SingleObjectCamera(config);
+        this.sceneCamera = new SceneCamera(config);
 
         this.dataSet = new DataSet(
                 config.getDatasetPath(),
@@ -86,15 +80,18 @@ public class TabContentWindow extends BorderPane {
                 config.getDatasetHeight(),
                 config.getDatasetWidth()
         );
+
+        this.scene = TestSceneBuilder.buildScene(dataSet.getBytes());
+
         this.currentAlgo = Algo.BILINEAR;
         this.currentSize = CT_HEAD_SIDE;
-        this.volumeRenderer = new SingleObjectVolumeRenderer(singleObjectCamera, config.getHuToColorMap());
+        this.volumeRenderer = new SceneVolumeRenderer(sceneCamera, scene);
 
         this.mainView = new ImageView(mainImage);
         this.sizeSlider = new Slider(MIN_SIZE_SLIDER_VAL, MAX_SIZE_SLIDER_VAL, CT_HEAD_SIDE);
         this.angleSlider = new Slider(0.0, 90.0, 0.0);
         this.renderButton = new RadioButton(RENDER_BTN_MSG);
-        this.trackballPane = new TrackballPane(mainView, volumeRenderer, singleObjectCamera, dataSet);
+        this.trackballPane = new TrackballPane(mainView, volumeRenderer, sceneCamera, dataSet);
         this.topHBox = new HBox();
         this.topHBox.getChildren().addAll(sizeSlider, angleSlider, renderButton);
         this.rightVBox = new VBox();
@@ -106,7 +103,7 @@ public class TabContentWindow extends BorderPane {
                 buildCameraInputs());
         this.leftVBox.getChildren().addAll(
                 buildColorMappingVBox());
-        this.trackball = new Trackball(mainView, volumeRenderer, singleObjectCamera, dataSet);
+        this.trackball = new Trackball(mainView, volumeRenderer, sceneCamera, dataSet);
 
         ImageUtil.writeHistogram(dataSet.getBytes());
 
@@ -138,10 +135,10 @@ public class TabContentWindow extends BorderPane {
         angleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                singleObjectCamera.initCamera();
+                sceneCamera.initCamera();
 
                 System.out.println(newValue.doubleValue());
-                singleObjectCamera.moveViewPortByAngleDegrees(newValue.doubleValue());
+                sceneCamera.moveViewPortByAngleDegrees(newValue.doubleValue());
 
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
@@ -257,7 +254,7 @@ public class TabContentWindow extends BorderPane {
                 } catch (NumberFormatException nfe) {
                     return;
                 }
-                singleObjectCamera.moveLightTo(new Point3D(newX, newY, newZ));
+                sceneCamera.moveLightTo(new Point3D(newX, newY, newZ));
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
                 mainView.setImage(renderedImage);
@@ -281,7 +278,7 @@ public class TabContentWindow extends BorderPane {
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
                                         observable, Number oldValue, Number newValue) {
-                singleObjectCamera.updateViewPort(newValue.intValue());
+                sceneCamera.updateViewPort(newValue.intValue());
                 System.out.println(newValue);
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
                         Trackball.NUM_OF_THREADS));
@@ -306,7 +303,7 @@ public class TabContentWindow extends BorderPane {
                 new ColorMappingListItem(Color.color(1, 0.79, 0.6), (short) 299),
                 new ColorMappingListItem(Color.color(0.8902, 0.8549, 0.7882), (short) 1900),
                 new ColorMappingListItem(Color.WHITE, Short.MAX_VALUE)
-                ));
+        ));
         listView.setCellFactory(lv -> new ListCell<ColorMappingListItem>() {
             private final TextField textField = new TextField();
 
@@ -367,5 +364,6 @@ public class TabContentWindow extends BorderPane {
 
         return vBox;
     }
+
 
 }

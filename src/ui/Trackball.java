@@ -1,7 +1,9 @@
 package ui;
 
+import component.AbstractVolumeRenderer;
+import component.camera.AbstractCamera;
 import component.camera.SingleObjectCamera;
-import component.VolumeRenderer;
+import component.SingleObjectVolumeRenderer;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,18 +17,18 @@ public class Trackball {
     public static final int NUM_OF_THREADS = 60;
 
     private final ImageView mainView;
-    private final VolumeRenderer volumeRenderer;
-    private final SingleObjectCamera singleObjectCamera;
+    private final AbstractVolumeRenderer volumeRenderer;
+    private final AbstractCamera camera;
     private final DataSet dataSet;
 
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public Trackball(ImageView mainView, VolumeRenderer volumeRenderer, SingleObjectCamera singleObjectCamera, DataSet dataSet) {
+    public Trackball(ImageView mainView, AbstractVolumeRenderer volumeRenderer, AbstractCamera abstractCamera, DataSet dataSet) {
         this.mainView = mainView;
         this.volumeRenderer = volumeRenderer;
-        this.singleObjectCamera = singleObjectCamera;
+        this.camera = abstractCamera;
         this.dataSet = dataSet;
 
         this.mainView.setOnMousePressed(event -> {
@@ -47,9 +49,9 @@ public class Trackball {
                 this.lastQuat = curQuat.mult(this.lastQuat).normalize();
                 this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
                 this.start = new Point2D(event.getX(), event.getY());
-                singleObjectCamera.moveViewPortByRotator(this.lastQuat);
+                camera.moveViewPortByRotator(this.lastQuat);
                 Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
-                        dataSet.getBytes(),
+                        this.dataSet.getBytes(),
                         NUM_OF_THREADS)
                 );
                 this.mainView.setImage(renderedImage);
@@ -66,11 +68,11 @@ public class Trackball {
             this.lastQuat = curQuat.mult(this.lastQuat).normalize();
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
             this.start = null;
-            singleObjectCamera.moveViewPortByRotator(this.lastQuat);
+            camera.moveViewPortByRotator(this.lastQuat);
 
 
-            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
-                    dataSet.getBytes(),
+            Image renderedImage = (this.volumeRenderer.volumeRayCastParallelized(
+                    this.dataSet.getBytes(),
                     NUM_OF_THREADS)
             );
             this.mainView.setImage(renderedImage);

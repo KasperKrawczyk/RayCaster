@@ -27,6 +27,7 @@ public class SceneRotatedRayCasterTask implements Runnable {
     public SceneRotatedRayCasterTask(Color[][] image, Scene scene, SceneCamera sceneCamera,
                                      CountDownLatch latch, SceneVolumeRenderer sceneVolumeRenderer,
                                      int startIndex, int endIndex) {
+
         this.image = image;
         this.scene = scene;
         this.sceneCamera = sceneCamera;
@@ -47,6 +48,7 @@ public class SceneRotatedRayCasterTask implements Runnable {
                 ray = getCurRay(sceneCamera.getEye(), passThroughPixel);
 
                 ArrayList<AABBIntersectionPoints> intersectionPoints = intersectAll(scene.getSceneObjects(), ray);
+
 
                 Color color;
                 if (intersectionPoints != null) {
@@ -105,15 +107,15 @@ public class SceneRotatedRayCasterTask implements Runnable {
         Point3D min = intersections.getMin();
         Point3D max = intersections.getMax();
         min = new Vector3D(
-                min.getZ(),
-                226 - min.getY(),
-                min.getX()
+                min.getZ() - intersections.getAabb().getMin().getZ(),
+                intersections.getAabb().getMax().getY() - min.getY(),
+                min.getX() - intersections.getAabb().getMin().getX()
         );
 
         max = new Vector3D(
-                max.getZ(),
-                226 - max.getY(),
-                max.getX()
+                max.getZ() - intersections.getAabb().getMin().getZ(),
+                intersections.getAabb().getMax().getY() - max.getY(),
+                max.getX() - intersections.getAabb().getMin().getX()
         );
 
         return new AABBIntersectionPoints(

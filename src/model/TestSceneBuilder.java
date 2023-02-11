@@ -15,13 +15,22 @@ public class TestSceneBuilder {
     }};
 
     public static Scene buildScene(short[][][] vol) {
-        AABB aabb1 = new AABB(new Vector3D(0, 0, 0), new Vector3D(255, 225, 255));
-        AABB aabb2 = new AABB(new Vector3D(400, 400, 400), new Vector3D(655, 625, 655));
+        AABB aabb1 = new AABB(
+                new Vector3D(255, 226, 255),
+                new Vector3D(0, 0, 0)
+        );
+        AABB aabb2 = new AABB(
+                new Vector3D(555, 226, 255),
+                new Vector3D(300, 0, 0)
+        );
 
         SceneObject so1 = new SceneObject(aabb1, vol, HU_TO_COLOR_MAP);
         SceneObject so2 = new SceneObject(aabb2, vol, HU_TO_COLOR_MAP);
 
         ArrayList<SceneObject> sceneObjects = new ArrayList<>();
+
+        sceneObjects.add(so1);
+        sceneObjects.add(so2);
 
         Scene scene = new Scene(new Vector3D(0, 1000, 0), sceneObjects);
 

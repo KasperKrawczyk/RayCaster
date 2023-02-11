@@ -14,4 +14,14 @@ public class ColorVoxel extends AbstractVoxel {
     public Color getColor() {
         return color;
     }
+
+    @Override
+    public String toString() {
+        return "ColorVoxel{" +
+                "color=" + color +
+                ", x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }

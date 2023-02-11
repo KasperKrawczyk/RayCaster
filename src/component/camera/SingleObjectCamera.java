@@ -9,7 +9,6 @@ import model.Vector3D;
 public class SingleObjectCamera extends AbstractCamera {
 
     public static final Vector3D DATASET_CENTRE = new Vector3D(256 * 0.5, 113 * 0.5, 256 * 0.5);
-    private final IConfig config;
 
     public SingleObjectCamera(IConfig config) {
         super();
@@ -18,46 +17,12 @@ public class SingleObjectCamera extends AbstractCamera {
         initCamera();
     }
 
-    public void initCamera() {
-        initViewPortCentre();
-        initViewPortNormal();
-        updateViewPortCorners();
-        initLight();
-        initCircleRadius();
-        initEye();
-
-    }
-
-    private void initViewPortCentre() {
-        //along the x-axis, the view plane will be centred on the centre of the dataset
-        double x = config.getDatasetWidth() / 2.0;
-        double y = config.getDatasetSize() / 2.0;
-        viewPortCentre = new Vector3D(x, y, VIEW_PORT_DATASET_CENTRE_DISTANCE);
-    }
-
-
-    private void initEye() {
-        eye = viewPortCentre
-                .add(lookAtCentre
-                        .sub(viewPortCentre)
-                        .normalize()
-                        .flip()
-                        .mult(VIEW_PORT_EYE_DISTANCE_MULT)
-                );
-    }
-
-    private void initLight() {
+    protected void initLight() {
         light = new Vector3D(65.5, 40, -200);
     }
 
 
-    private void initCircleRadius() {
-        circleRadius = lookAtCentre.sub(viewPortCentre).magnitude();
-    }
 
-    private void initViewPortNormal() {
-        viewPortNormal = lookAtCentre.sub(viewPortCentre).normalize();
-    }
 
     public void moveLightByVector(Vector3D moveBy) {
         light.add(moveBy);

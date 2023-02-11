@@ -1,6 +1,5 @@
 package component;
 
-import component.VolumeRenderer;
 import javafx.scene.paint.Color;
 import model.AABB;
 import model.Vector3D;
@@ -13,13 +12,13 @@ public abstract class RayCasterTask {
     protected final AABB aabb;
     protected final Vector3D aabbOffset;
     protected final CountDownLatch latch;
-    protected VolumeRenderer volumeRenderer;
+    protected SingleObjectVolumeRenderer volumeRenderer;
     protected final short[][][] vol;
     protected final int startIndex;
     protected final int endIndex;
 
 
-    public RayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset, CountDownLatch latch, VolumeRenderer volumeRenderer,
+    public RayCasterTask(Color[][] image, AABB aabb, Vector3D aabbOffset, CountDownLatch latch, SingleObjectVolumeRenderer volumeRenderer,
                          short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;

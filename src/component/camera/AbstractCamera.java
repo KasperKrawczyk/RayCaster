@@ -1,5 +1,6 @@
 package component.camera;
 
+import config.IConfig;
 import model.Axis;
 import model.Point3D;
 import model.Quaternion;
@@ -15,30 +16,43 @@ public abstract class AbstractCamera {
     public static final float WIDTH_HEIGHT_RESOLUTION = (float) VIEW_PLANE_WIDTH / (float) VIEW_PLANE_HEIGHT;
     public static final int DEFAULT_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER = 100;
 
+    protected IConfig config;
+
     protected Vector3D lookAtCentre = ORIGIN;
 
-    public Vector3D viewPortCentre;
-    public Vector3D viewPortCorner0; //start of the matrix, first row
-    public Vector3D viewPortCorner1; //end of the matrix, first row
-    public Vector3D viewPortCorner2; //start of the matrix, last row
-    public Vector3D viewPortCorner3; //end of the matrix, last row
-    public Vector3D eye; // behind viewPortCentre along the DATASET_CENTRE <> viewPortCentre axis
-    public Vector3D viewPortNormal;
-    public Vector3D light;
-    public double circleRadius;
-    public double viewPortAngle;
+    protected Vector3D viewPortCentre;
+    protected Vector3D viewPortCorner0; //start of the matrix, first row
+    protected Vector3D viewPortCorner1; //end of the matrix, first row
+    protected Vector3D viewPortCorner2; //start of the matrix, last row
+    protected Vector3D viewPortCorner3; //end of the matrix, last row
+    protected Vector3D eye; // behind viewPortCentre along the DATASET_CENTRE <> viewPortCentre axis
+    protected Vector3D viewPortNormal;
+    protected Vector3D light;
+    protected double circleRadius;
+    protected double viewPortAngle;
 
-    public int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER;
+    protected int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER;
 
 
-    public AbstractCamera(Point3D viewPortCentre) {
-        initCamera(viewPortCentre);
+    protected AbstractCamera(IConfig config) {
+        this.config = config;
+        initCamera();
     }
 
     protected AbstractCamera() {
     }
 
-    public void initCamera(Point3D viewPortCentre) {
+    public void initCamera() {
+        initViewPortCentre();
+        initViewPortNormal();
+        updateViewPortCorners();
+        initLight();
+        initCircleRadius();
+        initEye();
+
+    }
+
+    protected void initCamera(Point3D viewPortCentre) {
         initViewPortCentre(viewPortCentre);
         initViewPortNormal();
         updateViewPortCorners();
@@ -48,12 +62,19 @@ public abstract class AbstractCamera {
 
     }
 
-    private void initViewPortCentre(Point3D viewPortCentre) {
+    protected void initViewPortCentre() {
+        //along the x-axis, the view plane will be centred on the centre of the dataset
+        double x = config.getDatasetWidth() / 2.0;
+        double y = config.getDatasetSize() / 2.0;
+        viewPortCentre = new Vector3D(x, y, VIEW_PORT_DATASET_CENTRE_DISTANCE);
+    }
+
+    protected void initViewPortCentre(Point3D viewPortCentre) {
         this.viewPortCentre = new Vector3D(viewPortCentre);
     }
 
 
-    private void initEye() {
+    protected void initEye() {
         eye = viewPortCentre
                 .add(lookAtCentre
                         .sub(viewPortCentre)
@@ -63,16 +84,16 @@ public abstract class AbstractCamera {
                 );
     }
 
-    private void initLight() {
+    protected void initLight() {
         light = new Vector3D(65.5, 40, -200);
     }
 
 
-    private void initCircleRadius() {
+    protected void initCircleRadius() {
         circleRadius = lookAtCentre.sub(viewPortCentre).magnitude();
     }
 
-    private void initViewPortNormal() {
+    protected void initViewPortNormal() {
         viewPortNormal = lookAtCentre.sub(viewPortCentre).normalize();
     }
 
@@ -80,7 +101,7 @@ public abstract class AbstractCamera {
         light.add(moveBy);
     }
 
-    public  void moveLightTo(Point3D newLightLocation) {
+    public void moveLightTo(Point3D newLightLocation) {
         light = new Vector3D(
                 newLightLocation.getX(),
                 newLightLocation.getY(),

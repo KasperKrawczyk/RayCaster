@@ -1,5 +1,6 @@
 package component;
 
+import component.camera.AbstractCamera;
 import component.camera.SceneCamera;
 import component.camera.SingleObjectCamera;
 import javafx.scene.image.Image;
@@ -13,13 +14,12 @@ import model.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
-public class SceneVolumeRenderer {
+public class SceneVolumeRenderer extends AbstractVolumeRenderer {
 
-    private final SceneCamera sceneCamera;
     private final Scene scene;
 
     public SceneVolumeRenderer(SceneCamera sceneCamera, Scene scene) {
-        this.sceneCamera = sceneCamera;
+        super(sceneCamera);
         this.scene = scene;
     }
 
@@ -74,7 +74,7 @@ public class SceneVolumeRenderer {
         return list;
     }
 
-    public Color compositeSamples(ArrayList<ColorVoxel> list) {
+    public Color compositeSamples(ArrayList<? extends AbstractVoxel> list) {
         double r = 0;
         double g = 0;
         double b = 0;
@@ -85,20 +85,19 @@ public class SceneVolumeRenderer {
         double transparencyAcc = 1;
 
 
-        for (ColorVoxel sample : list) {
-
+        for (ColorVoxel sample : (ArrayList<ColorVoxel>) list) {
             Color color = sample.getColor();
             r = color.getRed();
             g = color.getGreen();
             b = color.getBlue();
             if (!color.equals(Color.WHITE)) {
-                opacity = DataSet.getOpacityLUT()[(int) sample.getGradient().magnitude()];
+                opacity = DataSet.getOpacityLUT()[(int) Math.min(DataSet.getOpacityLUT().length - 1, sample.getGradient().magnitude())];
             } else {
                 opacity = 0;
             }
 
             Color shadedSample = Reflections.applyLambertianReflection(
-                    sceneCamera.getLight(),
+                    this.camera.getLight(),
                     sample,
                     sample.getGradient(),
                     new Color(r, g, b, opacity)
@@ -124,22 +123,22 @@ public class SceneVolumeRenderer {
     }
 
 
+
+
     public Color sampleCompositeShade(ArrayList<AABBIntersectionPoints> aabbIntersectionPoints) {
         ArrayList<ColorVoxel> list = new ArrayList<>();
         for (AABBIntersectionPoints intersectionPoints : aabbIntersectionPoints) {
             list.addAll(collectSamples(intersectionPoints));
         }
         return compositeSamples(list);
-
-
     }
 
     public Image volumeRayCastParallelized(short[][][] vol, int numOfThreads) {
         Vector3D aabbOffset = new Vector3D(0, 0, 0);
 
 
-        WritableImage renderedImage = new WritableImage(SingleObjectCamera.VIEW_PLANE_WIDTH, SingleObjectCamera.VIEW_PLANE_HEIGHT);
-        Color[][] colorMat = new Color[SingleObjectCamera.VIEW_PLANE_HEIGHT][SingleObjectCamera.VIEW_PLANE_WIDTH];
+        WritableImage renderedImage = new WritableImage(AbstractCamera.VIEW_PLANE_WIDTH, AbstractCamera.VIEW_PLANE_HEIGHT);
+        Color[][] colorMat = new Color[AbstractCamera.VIEW_PLANE_HEIGHT][AbstractCamera.VIEW_PLANE_WIDTH];
         PixelWriter pixelWriter = renderedImage.getPixelWriter();
 
         runRotatedRayCasterTasks(numOfThreads, colorMat);
@@ -168,29 +167,6 @@ public class SceneVolumeRenderer {
 //        return renderedImage;
 //    }
 
-
-    private static void matToImg(Color[][] colorMat, PixelWriter pixelWriter) {
-        for (int y = 0; y < SingleObjectCamera.VIEW_PLANE_HEIGHT; y++) {
-            for (int x = 0; x < SingleObjectCamera.VIEW_PLANE_WIDTH; x++) {
-                    pixelWriter.setColor(x, y, colorMat[y][x]);
-            }
-        }
-    }
-
-    private static int[][] getBoundingIndices(int sectionWidth) {
-        int numOfSections = SingleObjectCamera.VIEW_PLANE_WIDTH / sectionWidth;
-        //[sectionNum][0] for start, [sectionNum][1] for end
-        int[][] indices = new int[numOfSections][2];
-        int curStart;
-        int curEnd;
-        for (int sectionNum = 0; sectionNum < numOfSections; sectionNum++) {
-            curStart = sectionWidth * sectionNum;
-            curEnd = curStart + sectionWidth;
-            indices[sectionNum][0] = curStart;
-            indices[sectionNum][1] = curEnd;
-        }
-        return indices;
-    }
 
 //    private static void runRayCasterTasks(int numOfThreads, Color[][] colorMat, model.AABB aabb,
 //                                          model.Vector3D aabbOffset, short[][][] vol) {
@@ -223,12 +199,13 @@ public class SceneVolumeRenderer {
 
 
     private void runRotatedRayCasterTasks(int numOfThreads, Color[][] colorMat) {
+
         if (!isCorrectNumThreads(numOfThreads)) {
             throw new IllegalArgumentException(NUM_OF_THREADS_ERR_MSG);
         }
         Thread[] taskThreads = new Thread[numOfThreads];
         CountDownLatch latch = new CountDownLatch(numOfThreads);
-        int sectionWidth = SingleObjectCamera.VIEW_PLANE_WIDTH / numOfThreads;
+        int sectionWidth = AbstractCamera.VIEW_PLANE_WIDTH / numOfThreads;
         int[][] boundingIndices = getBoundingIndices(sectionWidth);
         int startIndex;
         int endIndex;
@@ -236,7 +213,7 @@ public class SceneVolumeRenderer {
             startIndex = boundingIndices[numOfSection][0];
             endIndex = boundingIndices[numOfSection][1];
             SceneRotatedRayCasterTask task = new SceneRotatedRayCasterTask(
-                    colorMat, scene, sceneCamera, latch, this, startIndex, endIndex
+                    colorMat, scene, (SceneCamera) camera, latch, this, startIndex, endIndex
             );
             taskThreads[numOfSection] = new Thread(task);
             taskThreads[numOfSection].start();
@@ -251,6 +228,16 @@ public class SceneVolumeRenderer {
 
     private static boolean isCorrectNumThreads(int numOfThreads) {
         return SingleObjectCamera.VIEW_PLANE_WIDTH % numOfThreads == 0;
+    }
+
+    @Override
+    public ArrayList<? extends AbstractVoxel> collectSamples(Vector3D intersection0, Vector3D intersection1, short[][][] vol) {
+        return null;
+    }
+
+    @Override
+    public Color sampleCompositeShade(Vector3D intersectionVector0, Vector3D intersectionVector1, short[][][] vol) {
+        return null;
     }
 
 }

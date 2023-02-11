@@ -1,7 +1,9 @@
 package ui;
 
+import component.AbstractVolumeRenderer;
+import component.camera.AbstractCamera;
 import component.camera.SingleObjectCamera;
-import component.VolumeRenderer;
+import component.SingleObjectVolumeRenderer;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,38 +25,38 @@ public class TrackballPane extends StackPane {
 
     private WritableImage trackballImage = new WritableImage(SIDE, SIDE);
     private final ImageView mainView;
-    private final VolumeRenderer volumeRenderer;
-    private final SingleObjectCamera singleObjectCamera;
+    private final AbstractVolumeRenderer volumeRenderer;
+    private final AbstractCamera singleObjectCamera;
     private final DataSet dataSet;
     private ImageView trackballView = new ImageView(trackballImage);
     private Quaternion lastQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Quaternion curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
     private Point2D start;
 
-    public TrackballPane(ImageView view, VolumeRenderer volumeRenderer, SingleObjectCamera singleObjectCamera, DataSet dataSet) {
+    public TrackballPane(ImageView view, AbstractVolumeRenderer volumeRenderer, AbstractCamera camera, DataSet dataSet) {
         super();
         paintImage3();
         this.mainView = view;
         this.volumeRenderer = volumeRenderer;
         this.getChildren().add(trackballView);
         this.trackballView.setImage(trackballImage);
-        this.singleObjectCamera = singleObjectCamera;
+        this.singleObjectCamera = camera;
         this.dataSet = dataSet;
 
         // for debugging purposes
-        this.trackballView.setOnMouseMoved(event -> {
-            double[] can = getCanonical(event.getX(), event.getY());
-
-            double canX2 = Gradients.mapToNewRange(event.getX(), 0, 255, -1, 1, 5);
-            double canY2 = -Gradients.mapToNewRange(event.getY(), 0, 255, -1, 1, 5);
-
-            System.out.println("canX1 = " + can[0] + " || canY1 = " + -can[1]);
-            System.out.println("canX2 = " + canX2 + " || canY2 = " + canY2);
-//            if (isWithinCircle(can[0], can[1], RADIUS)) {
-//                System.out.println(can[0] + " | " + can[1]);
+//        this.trackballView.setOnMouseMoved(event -> {
+//            double[] can = getCanonical(event.getX(), event.getY());
 //
-//            }
-        });
+//            double canX2 = Gradients.mapToNewRange(event.getX(), 0, 255, -1, 1, 5);
+//            double canY2 = -Gradients.mapToNewRange(event.getY(), 0, 255, -1, 1, 5);
+//
+//            System.out.println("canX1 = " + can[0] + " || canY1 = " + -can[1]);
+//            System.out.println("canX2 = " + canX2 + " || canY2 = " + canY2);
+////            if (isWithinCircle(can[0], can[1], RADIUS)) {
+////                System.out.println(can[0] + " | " + can[1]);
+////
+////            }
+//        });
 
         this.trackballView.setOnMousePressed(event -> {
             this.start = new Point2D(event.getX(), event.getY());
@@ -77,7 +79,7 @@ public class TrackballPane extends StackPane {
             this.lastQuat = curQuat.mult(this.lastQuat).normalize();
             this.curQuat = Quaternion.makeExactQuaternionRadians(1, Vector3D.NULL);
             this.start = null;
-            singleObjectCamera.moveViewPortByRotator(this.lastQuat);
+            camera.moveViewPortByRotator(this.lastQuat);
 
             Image renderedImage = (volumeRenderer.volumeRayCastParallelized(
                     dataSet.getBytes(),

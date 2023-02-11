@@ -82,7 +82,7 @@ public class AABB {
      * Calculates intersection with the given ray between a certain distance
      * interval.
      * <p>
-     * model.Ray-box intersection is using IEEE numerical properties to ensure the
+     * Ray-box intersection is using IEEE numerical properties to ensure the
      * test is both robust and efficient, as described in:
      * <br>
      * <code>Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley: "An
@@ -143,6 +143,14 @@ public class AABB {
             return new AABBIntersectionPoints(this, ray, tMin, tMax);
         }
         return null;
+    }
+
+    public Vector3D getMax() {
+        return max;
+    }
+
+    public Vector3D getMin() {
+        return min;
     }
 
 }

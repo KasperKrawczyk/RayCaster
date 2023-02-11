@@ -15,7 +15,7 @@ public class RotatedRayCasterTask implements Runnable {
     protected final AABB aabb;
     protected final SingleObjectCamera singleObjectCamera;
     protected final CountDownLatch latch;
-    protected final VolumeRenderer volumeRenderer;
+    protected final SingleObjectVolumeRenderer volumeRenderer;
     protected final short[][][] vol;
     protected final int startIndex;
     protected final int endIndex;
@@ -25,7 +25,7 @@ public class RotatedRayCasterTask implements Runnable {
     );
 
     public RotatedRayCasterTask(Color[][] image, AABB aabb, SingleObjectCamera singleObjectCamera,
-                                CountDownLatch latch, VolumeRenderer volumeRenderer,
+                                CountDownLatch latch, SingleObjectVolumeRenderer volumeRenderer,
                                 short[][][] vol, int startIndex, int endIndex) {
         this.image = image;
         this.aabb = aabb;

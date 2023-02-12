@@ -1,6 +1,7 @@
 package component.camera;
 
 import config.IConfig;
+import javafx.scene.input.KeyCode;
 import model.Axis;
 import model.Point3D;
 import model.Quaternion;
@@ -9,12 +10,14 @@ import model.Vector3D;
 public abstract class AbstractCamera {
 
     public static final Vector3D ORIGIN = new Vector3D(0, 0, 0);
+    public static final int KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE = 5;
     public static final int VIEW_PLANE_HEIGHT = 600;
     public static final int VIEW_PLANE_WIDTH = 600;
     public static final int VIEW_PORT_DATASET_CENTRE_DISTANCE = 0;
     public static final int VIEW_PORT_EYE_DISTANCE_MULT = (int) (VIEW_PLANE_WIDTH / 1.38);
     public static final float WIDTH_HEIGHT_RESOLUTION = (float) VIEW_PLANE_WIDTH / (float) VIEW_PLANE_HEIGHT;
     public static final int DEFAULT_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER = 100;
+    public static final int START_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER = -600;
 
     protected IConfig config;
 
@@ -31,7 +34,7 @@ public abstract class AbstractCamera {
     protected double circleRadius;
     protected double viewPortAngle;
 
-    protected int viewPortDatasetCentreDistanceMultiplier = DEFAULT_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER;
+    protected int viewPortDatasetCentreDistanceMultiplier = START_VIEWPORT_LOOK_AT_CENTRE_DISTANCE_MULTIPLIER;
 
 
     protected AbstractCamera(IConfig config) {
@@ -82,6 +85,24 @@ public abstract class AbstractCamera {
                         .flip()
                         .mult(VIEW_PORT_EYE_DISTANCE_MULT)
                 );
+    }
+
+    public void moveCameraByKeyPressed(KeyCode keyCode){
+        switch (keyCode) {
+            case W -> moveCameraCoords(0, 0, KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE);
+            case A -> moveCameraCoords(-KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE, 0, 0);
+            case S -> moveCameraCoords(0, 0, -KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE);
+            case D -> moveCameraCoords(KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE, 0, 0);
+            case Q -> moveCameraCoords(0, KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE, 0);
+            case E -> moveCameraCoords(0, -KEYBOARD_INPUT_CAMERA_MVMT_STEP_SIZE, 0);
+        }
+        updateViewPortCorners();
+        updateEye();
+    }
+
+    private void moveCameraCoords(double x, double y, double z) {
+        viewPortCentre.moveThisByVector(new Vector3D(x, y, z));
+        lookAtCentre.moveThisByVector(new Vector3D(x, y, z));
     }
 
     protected void initLight() {

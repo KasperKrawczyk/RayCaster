@@ -18,6 +18,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 import mathutil.ImageUtil;
 import model.*;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TabSceneContentWindow extends BorderPane {
@@ -110,6 +112,8 @@ public class TabSceneContentWindow extends BorderPane {
 //        Image initRender = (component.VolumeRenderer.volumeRayCastParallelized(model.DataSet.getBytes(),
 //                80));
 //        mainView.setImage(initRender);
+        mainView.setFocusTraversable(true);
+        setCameraCoordControls(mainView);
 
 
         this.renderButton.setOnAction(event -> {
@@ -147,12 +151,20 @@ public class TabSceneContentWindow extends BorderPane {
         });
 
 
+
         this.setTop(topHBox);
         this.setRight(rightVBox);
         this.setCenter(mainView);
         this.setLeft(leftVBox);
 
         Scene scene = new Scene(this, MAIN_SIDE, MAIN_SIDE);
+        stage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+            sceneCamera.moveCameraByKeyPressed(keyEvent.getCode());
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
+                    Trackball.NUM_OF_THREADS));
+            mainView.setImage(renderedImage);
+
+        });
         stage.setScene(scene);
         stage.show();
 
@@ -272,8 +284,8 @@ public class TabSceneContentWindow extends BorderPane {
     }
 
     public VBox buildCameraInputs() {
-        Slider slider = new Slider(-800, 400, 0);
-        Label sliderLabel = new Label("component.camera.Camera distance");
+        Slider slider = new Slider(-1200, 400, 0);
+        Label sliderLabel = new Label("Camera distance");
 
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number>
@@ -363,6 +375,17 @@ public class TabSceneContentWindow extends BorderPane {
         });
 
         return vBox;
+    }
+
+    private void setCameraCoordControls(ImageView imageView) {
+        imageView.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+            System.out.println(keyEvent.getCode());
+            sceneCamera.moveCameraByKeyPressed(keyEvent.getCode());
+            Image renderedImage = (volumeRenderer.volumeRayCastParallelized(dataSet.getBytes(),
+                    Trackball.NUM_OF_THREADS));
+            mainView.setImage(renderedImage);
+
+        });
     }
 
 
